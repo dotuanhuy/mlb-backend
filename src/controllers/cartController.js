@@ -50,14 +50,14 @@ let addProductToCart = async (req, res) => {
 
 let deleteCart = async (req, res) => {
     try {
-        const {productId, userId, cartId} = req?.body?.data
-        if (!productId || !userId || !cartId) {
+        const {cartDetailId} = req?.body?.data
+        if (!cartDetailId) {
             return res.status(200).json({
                 errCode: 1,
                 errMessage: 'Missing required parameters'
             })
         }
-        let data = await cartService.deleteCartService(req?.body?.data)
+        let data = await cartService.deleteCartService(cartDetailId)
         return res.status(200).json(data)
     } catch (e) {
         console.log(e)
@@ -68,16 +68,16 @@ let deleteCart = async (req, res) => {
     }
 }
 
-let deleteAProductCart = async (req, res) => {
+let changeCart = async (req, res) => {
     try {
-        const {productId, cartId, typeStep} = req?.body?.data
-        if (!productId || !cartId || !typeStep) {
+        const {cartDetailId, typeStep} = req?.body?.data
+        if (!cartDetailId || !typeStep) {
             return res.status(200).json({
                 errCode: 1,
                 errMessage: 'Missing required parameters'
             })
         }
-        let data = await cartService.deleteAProductCartService(req?.body?.data)
+        let data = await cartService.changeCartService({cartDetailId, typeStep})
         return res.status(200).json(data)
     } catch (e) {
         console.log(e)
@@ -92,5 +92,5 @@ module.exports = {
     getCartsByUser,
     addProductToCart,
     deleteCart,
-    deleteAProductCart
+    changeCart
 }

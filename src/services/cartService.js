@@ -118,14 +118,12 @@ let addProductToCartService = ({productId, userId, quantity, size, status=true},
 }
 
 
-let deleteCartService = ({productId, size, cartId}) => {
+let deleteCartService = (cartDetailId) => {
     return new Promise(async (resolve, reject) => {
         try {   
             await db.CartDetail.destroy({
                 where: { 
-                    productId,
-                    cartId,
-                    size,
+                    id: cartDetailId,
                     status: true
                 }
             })
@@ -139,14 +137,12 @@ let deleteCartService = ({productId, size, cartId}) => {
     })
 }
 
-let deleteAProductCartService = ({productId, cartId, size, typeStep}) => {
+let changeCartService = ({cartDetailId, typeStep}) => {
     return new Promise(async (resolve, reject) => {
         try {   
             let data = await db.CartDetail.findOne({
                 where: { 
-                    cartId,
-                    productId,
-                    size,
+                    id: cartDetailId,
                     status: true,
                     quantity: {
                         [Op.gt]: 0
@@ -185,5 +181,5 @@ module.exports = {
     addNewCartService,
     addProductToCartService,
     deleteCartService,
-    deleteAProductCartService
+    changeCartService
 }

@@ -6,9 +6,9 @@ const {verifyAccessToken} = require('../middlewareControllers/verifyAccessTokenM
 const favouriteProductRoute = express.Router()
 // GET: /api/v1/favourite
 favouriteProductRoute.get('/', verifyAccessToken, favouriteProductController.getAllFavouriteProduct)
-// GET: /api/v1/limit
+// GET: /api/v1/favourite/limit
 favouriteProductRoute.get('/limit', verifyAccessToken, favouriteProductController.getAllFavouriteProductLimit)
-
-favouriteProductRoute.post('/api/add-product-favourite',  verifyAccessToken, favouriteProductController.changeProductFavourite)
+// POST: /api/v1/favourite/create
+favouriteProductRoute.post('/create',  verifyAccessToken, favouriteProductController.changeProductFavourite)
 
 module.exports = favouriteProductRoute

@@ -27,6 +27,8 @@ productRoute.get('/description', productController.getAllDescriptionProduct)
 productRoute.post('/description/create', productController.addDescriptionProduct)
 // GET: /api/v1/product/public
 productRoute.get('/public', productController.getAllProductPublic)
+// GET: /api/v1/product/public/limit
+productRoute.get('/public', productController.getAllProductPublic)
 // GET: /api/v1/product/category/count
 productRoute.get('/category/count', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, productController.getQuantityOfEachProductByCategory)
 // GET: /api/v1/product/category
