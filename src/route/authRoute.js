@@ -1,7 +1,7 @@
 const express = require('express')
 const authController = require('../controllers/authController')
 const userController = require('../controllers/userController')
-const {verifyAccessToken} = require('../middlewareControllers/verifyAccessTokenMiddleware')
+const {verifyAccessToken} = require('../middlewares/verifyAccessTokenMiddleware')
 const passport = require('passport')
 
 const authRoute = express.Router()

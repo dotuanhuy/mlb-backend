@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         price: DataTypes.FLOAT,
         categoryDetailId: DataTypes.INTEGER,
         discountId: DataTypes.INTEGER,
-        image: DataTypes.BLOB('long'),
+        image: DataTypes.STRING,
         productionSite: DataTypes.STRING,
         releaseDate: DataTypes.DATE,
         brandId: DataTypes.INTEGER,

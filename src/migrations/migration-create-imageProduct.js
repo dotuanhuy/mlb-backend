@@ -10,7 +10,7 @@ module.exports = {
                 type: Sequelize.INTEGER
             },
             image: {
-                type: Sequelize.BLOB('long')
+                type: Sequelize.STRING
             },
             productId: {
                 type: Sequelize.INTEGER

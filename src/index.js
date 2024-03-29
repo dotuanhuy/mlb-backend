@@ -8,7 +8,7 @@ const { initializeApp } = require("firebase/app");
 const router = require('./route/web')
 let connectDB = require('./config/connectDB')
 const {connectMongodb} = require('./config/mongodb')
-let {firebaseConfig} = require('./config/firebase')
+let {firebaseConfigImageSize, firebaseConfigImageMlb} = require('./config/firebase')
 require('./passport')
 
 const app = express()
@@ -28,7 +28,8 @@ app.use(cookies())
 app.use(router)
 connectDB()
 connectMongodb()
-initializeApp(firebaseConfig) 
+initializeApp(firebaseConfigImageSize, 'app1') 
+initializeApp(firebaseConfigImageMlb, 'app2') 
 
 
 app.listen(port, () => {

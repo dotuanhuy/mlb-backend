@@ -1,7 +1,7 @@
 const express = require('express')
 const categoryController = require('../controllers/categoryController')
-const authMiddlewareController = require('../middlewareControllers/authMiddlewareController')
-const {verifyAccessToken} = require('../middlewareControllers/verifyAccessTokenMiddleware')
+const authMiddlewareController = require('../middlewares/authMiddlewareController')
+const {verifyAccessToken} = require('../middlewares/verifyAccessTokenMiddleware')
 
 const categoryRoute = express.Router()
 

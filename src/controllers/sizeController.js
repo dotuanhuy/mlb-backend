@@ -22,16 +22,14 @@ let getAllSizesByType = async (req, res) => {
 let createSizeDetail = async (req, res, next) => {
     try {
         const {listSizesAdded} = req?.body
-        if (!req?.body) {
+        if (listSizesAdded.length === 0) {
             return res.status(200).json({
-                errCode: 1,
-                errMessage: 'Missing requied parameters'
+                errCode: 0,
+                errMessage: 'Size is not exist'
             })
         }
-        if (listSizesAdded.length > 0) {
-            let data = await sizeService.createSizeDetailService(req.body)
-        } 
-        next()
+        let data = await sizeService.createSizeDetailService(req.body)
+        return res.status(200).json(data)
     } catch(e) {
         console.log(e)
         return res.status(200).json({
@@ -84,7 +82,8 @@ let updateSizeDetailByProductId = async (req, res, next) => {
 
 let changeSizeDetailByProductId = async (req, res, next) => {
     try {
-        const {listSizesDeleted, listSizesAdded, id} = req?.body
+        const {listSizesDeleted, listSizesAdded} = req?.body
+        const {id} = req.query
         let resDeleted = ''
         let resAdded = ''
 

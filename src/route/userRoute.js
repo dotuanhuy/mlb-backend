@@ -1,8 +1,8 @@
 const express = require('express')
 const userController = require('../controllers/userController')
 const roleController = require('../controllers/roleController')
-const authMiddlewareController = require('../middlewareControllers/authMiddlewareController')
-const {verifyAccessToken} = require('../middlewareControllers/verifyAccessTokenMiddleware')
+const authMiddlewareController = require('../middlewares/authMiddlewareController')
+const {verifyAccessToken} = require('../middlewares/verifyAccessTokenMiddleware')
 
 const userRoute = express.Router()
 

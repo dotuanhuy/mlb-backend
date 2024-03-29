@@ -1,7 +1,7 @@
 const express = require('express')
-const authMiddlewareController = require('../middlewareControllers/authMiddlewareController')
+const authMiddlewareController = require('../middlewares/authMiddlewareController')
 const discountController = require('../controllers/discountController')
-const {verifyAccessToken} = require('../middlewareControllers/verifyAccessTokenMiddleware')
+const {verifyAccessToken} = require('../middlewares/verifyAccessTokenMiddleware')
 
 const discountRoute = express.Router()
 

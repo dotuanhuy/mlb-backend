@@ -1,11 +1,16 @@
 const express = require('express')
 const firebaseController = require('../controllers/firebaseController')
-const authMiddlewareController = require('../middlewareControllers/authMiddlewareController')
-const {verifyAccessToken} = require('../middlewareControllers/verifyAccessTokenMiddleware')
+const { upload, uploadMultiple } = require('../middlewares/multer')
 
 const firebaseRoute = express.Router()
 
 // GET: /api/v1/firebase/image/size
 firebaseRoute.get('/image/size', firebaseController.getSize)
+
+// POST: /api/v1/firebase/mlb/upload
+firebaseRoute.post('/mlb/upload', upload, firebaseController.upload)
+
+// POST: /api/v1/firebase/mlb/delete
+firebaseRoute.post('/mlb/delete', firebaseController.delete)
 
 module.exports = firebaseRoute

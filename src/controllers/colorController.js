@@ -86,7 +86,8 @@ let updateColorDetailByProductId = async (req, res) => {
 
 let changeColorDetailByProductId = async (req, res) => {
     try {
-        const {listColorsDeleted, listColorsAdded, id} = req?.body
+        const {listColorsDeleted, listColorsAdded} = req?.body
+        const {id} = req.query
         let resDeleted = ''
         let resAdded = ''
         if (!id || !listColorsAdded || !listColorsDeleted) {
@@ -101,10 +102,12 @@ let changeColorDetailByProductId = async (req, res) => {
         if (listColorsAdded.length > 0) {
             resAdded = await colorService.createColorDetailService({listColorsAdded, id})
         }
-        return res.status(200).json({
-            errCode: 0,
-            errMessage: 'Update product success'
-        })
+        if (resAdded.errCode === 0) {
+            return res.status(200).json({
+                errCode: 0,
+                errMessage: 'Update product success'
+            })
+        }
     } catch(e) {
         console.log(e)
         return res.status(200).json({
