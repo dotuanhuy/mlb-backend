@@ -67,11 +67,6 @@ module.exports = {
                 const metadata = {
                     contentType: file.images[i].mimetype,
                 }
-    
-                // const saveImage = await Image.create({imageUrl: fileName});
-                // file.item.imageId.push({_id: saveImage._id});
-                // await file.item.save();
-    
                 await uploadBytesResumable(storageRef, file.images[i].buffer, metadata);
                 const imageUrl = await getDownloadURL(storageRef);
                 imageUrls.push(imageUrl);

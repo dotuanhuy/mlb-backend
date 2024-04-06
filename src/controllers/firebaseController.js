@@ -14,6 +14,9 @@ module.exports = {
         try {
             const {type} = req.query
             if (type === 'single') {
+                // if (!('file' in req)) {
+                //     return next()
+                // } 
                 if (!req?.file?.mimetype || !req?.file?.buffer) {
                     return res.status(400).json({errCode: 1, errMessage: 'Image does not exist, please re-add it'})
                 }
@@ -49,7 +52,7 @@ module.exports = {
     delete: async (req, res, next) => {
         try {
             const {type} = req.query
-            if (type === 'single') {
+            if (type === 'single') { 
                 const imageUrl = req?.imageUrl
                 if (!imageUrl) {
                     return res.status(400).json({ errCode: 1, errMessage: 'Error, please choose photo!' })

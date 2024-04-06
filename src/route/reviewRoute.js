@@ -8,11 +8,23 @@ const reviewRoute = express.Router()
 // GET: /api/v1/review/product
 reviewRoute.get('/product', reviewController.getReviewProduct)
 // POST: /api/v1/review/feedback/create
-reviewRoute.post('/feedback/create', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, reviewController.createFeebback)
+reviewRoute.post('/feedback/create', 
+    verifyAccessToken, 
+    authMiddlewareController.verifyTokenAdmin, 
+    reviewController.createFeebback
+)
 // POST: /api/v1/review/feedback/update
-reviewRoute.post('/feedback/update', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, reviewController.updateFeebback)
+reviewRoute.post('/feedback/update', 
+    verifyAccessToken, 
+    authMiddlewareController.verifyTokenAdmin, 
+    reviewController.updateFeebback
+)
 // DELETE: /api/v1/review/feedback/delete
-reviewRoute.delete('/feedback/delete/:id', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, reviewController.deleteFeebback)
+reviewRoute.delete('/feedback/delete/:id', 
+    verifyAccessToken,
+    authMiddlewareController.verifyTokenAdmin, 
+    reviewController.deleteFeebback
+)
 // POST: /api/v1/review/update
 reviewRoute.post('/update', verifyAccessToken, reviewController.updateReview)
 // DELETE: /api/v1/review/delete

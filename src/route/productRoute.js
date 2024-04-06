@@ -23,8 +23,8 @@ productRoute.post('/create',
 productRoute.delete('/delete', 
     verifyAccessToken, 
     authMiddlewareController.verifyTokenAdmin, 
-    sizeController.deleteSizeDetailByProductId, 
-    colorController.deleteColorDetailByProductId, 
+    productController.getImageProductById,
+    firebaseController.delete,
     productController.deleteProduct
 )
 // GET: /api/v1/product/id
@@ -33,21 +33,11 @@ productRoute.get('/id', productController.getProductById)
 productRoute.post('/update', 
     verifyAccessToken, 
     authMiddlewareController.verifyTokenAdmin, 
-    productController.updateProduct, 
-    sizeController.changeSizeDetailByProductId, 
-    colorController.changeColorDetailByProductId
-)
-// POST: /api/v1/product/update/image
-productRoute.post('/update/image', 
-    verifyAccessToken, 
-    authMiddlewareController.verifyTokenAdmin, 
     upload, 
     productController.getImageProductById,
     firebaseController.upload, 
     firebaseController.delete,
-    productController.updateProductAndImage, 
-    sizeController.changeSizeDetailByProductId, 
-    colorController.changeColorDetailByProductId,
+    productController.updateProduct, 
 )
 // GET: /api/v1/product/count
 productRoute.get('/count', 
@@ -56,8 +46,7 @@ productRoute.get('/count',
     productController.getCountProducts
 )
 // POST: /api/v1/product/image/change
-productRoute.post(
-    '/image/change', 
+productRoute.post('/image/change', 
     verifyAccessToken, 
     authMiddlewareController.verifyTokenAdmin, 
     upload, 

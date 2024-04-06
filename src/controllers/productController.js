@@ -7,7 +7,6 @@ module.exports = {
     createNewProduct: async (req, res, next) => {
         try {
             const product = JSON.parse(req?.body?.product)
-
             const infor = await productService.getProductByCode(product?.code)
             if (infor) {
                 return res.status(200).json({
@@ -21,7 +20,7 @@ module.exports = {
                 return res.status(200).json('Create product failed')
             }
             const {listSizesAdded, listColorsAdded} = product
-            const id = data?.product?.id
+            const id = data?.dataValues?.id
             if (listSizesAdded && listSizesAdded.length > 0) {
                 const size = await sizeService.createSizeDetailService({listSizesAdded, id})
             }
@@ -79,7 +78,9 @@ module.exports = {
                     errMessage: 'Missing required parameters'
                 })
             }
-            let infor = await productService.deleteProductService(id) 
+            const size = await sizeService.deleteSizeDetailByProductId(id)
+            const color = await colorService.deleteColorDetailByProductId(id)
+            const infor = await productService.deleteProductService(id) 
             return res.status(200).json(infor)
         } catch (e) {
             console.log(e)
@@ -110,36 +111,35 @@ module.exports = {
     updateProduct: async (req, res, next) => {
         try {
             const {id} = req?.query
-            if (!id) {
-                return res.status(200).json({
-                    errCode: 1,
-                    errMessage: 'Missing required parameters'
-                })
-            }
-            let data = await productService.updateProductService(req.body, id) 
-            next()
-        } catch (e) {
-            console.log(e)
-            return res.status(200).json({
-                errCode: -1, 
-                errMessage: 'Error from the server'
-            })
-        }
-    },
-    updateProductAndImage: async (req, res, next) => {
-        try {
-            const {id} = req?.query
             const product = JSON.parse(req.body.product)
             req.body.product = product
-            product.image = req.image
-            if (!id) {
+            const {listSizesDeleted, listSizesAdded, listColorsDeleted, listColorsAdded} = req.body.product
+            if (req?.image) {
+                product.image = req.image
+            }
+            if (!id || !listSizesDeleted || !listSizesAdded || !listColorsAdded || !listColorsDeleted) {
                 return res.status(200).json({
                     errCode: 1,
                     errMessage: 'Missing required parameters'
                 })
             }
-            let data = await productService.updateProductService(product, id)
-            next()
+            const data = await productService.updateProductService(product, id) 
+            if (listSizesDeleted.length > 0) {
+                const resDeleted  = await sizeService.deleteSizeDetailByProductIdService({listSizesDeleted, id})
+            }
+            if (listSizesAdded.length > 0) {
+                const resAdded = await sizeService.createSizeDetailService({listSizesAdded, id})
+            }
+            if (listColorsDeleted.length > 0) {
+                const resDeleted = await colorService.deleteColorDetailByProductIdService({listColorsDeleted, id})
+            }
+            if (listColorsAdded.length > 0) {
+                const resAdded = await colorService.createColorDetailService({listColorsAdded, id})
+            }
+            return res.status(200).json({
+                errCode: 0,
+                errMessage: 'Update product success'
+            })
         } catch (e) {
             console.log(e)
             return res.status(200).json({

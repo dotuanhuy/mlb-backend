@@ -105,7 +105,7 @@ module.exports = {
                     errMessage: 'Missing require parameters'
                 })
             } 
-            const feedback = await reviewSevice.deleteFeedback({id})
+            const feedback = await reviewSevice.deleteFeedback(+id)
             // if (feedback[0] === 1) {
             //     return res.status(200).json({
             //         errCode: 1,

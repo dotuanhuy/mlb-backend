@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         name: DataTypes.STRING,
         status: DataTypes.BOOLEAN,
         categoryId: DataTypes.INTEGER,
-        imageRoot: DataTypes.BLOB('long')
+        imageRoot: DataTypes.STRING
     }, {
         sequelize,
         modelName: 'ProductType',

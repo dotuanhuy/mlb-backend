@@ -15,9 +15,9 @@ module.exports = {
                     },
                     {
                         model: db.Feedback, as: 'dataFeedbackReview',
-                        where: {
-                            status: 1
-                        }
+                        // where: {
+                        //     status: 1
+                        // }
                     }
                 ],
                 order: [['id', 'DESC']]
@@ -64,17 +64,15 @@ module.exports = {
             .catch(reject)
         })
     },
-    deleteFeedback: ({arrReviewId}) => {
+    deleteFeedback: (id) => {
         return new Promise((resolve, reject) => {
             // db.Feedback.destroy({ 
             //     where: { id }
             // })
-            db.Feedback.update({
-               status: 0 
-            },
+            db.Feedback.destroy(
             { 
                 where: {
-                    id: arrReviewId
+                    id
                 }
             })
             .then(resolve)

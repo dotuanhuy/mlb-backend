@@ -63,5 +63,16 @@ module.exports = {
         } catch (e) {
             throw e
         }
+    },
+    deleteSizeDetailByProductId: async (id) => {
+        return new Promise((resolve, rejcet) => {
+            db.SizeDetail.destroy({
+                where: {
+                    productId: id,
+                }
+            })
+            .then(resolve)
+            .catch(rejcet)
+        })
     }
 }
