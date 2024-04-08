@@ -71,8 +71,8 @@ productRoute.get('/category/count',
 productRoute.get('/category', productController.getProductByCategory)
 // GET: /api/v1/product/category/limit
 productRoute.get('/category/limit', productController.getProductByCategoryLimit)
-// GET: /api/v1/product/limit
-productRoute.get('/limit', productController.getLimitProducts)
+// GET: /api/v1/product/categoryDetail
+productRoute.get('/categoryDetail', productController.getProductByCategoryDetailLimit)
 // GET: /api/v1/product/sort/limit
 productRoute.get('/sort/limit', productController.getLimitProductByOption) 
 // GET: /api/v1/product/search/name

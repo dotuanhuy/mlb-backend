@@ -452,39 +452,53 @@ module.exports = {
             }
         })
     },
-    getLimitProductByCategoryService: (categore, page) => {
-        return new Promise(async (resolve, rejcet) => {
-            try {
-                let products = await db.Product.findAndCountAll({
-                    include: [
-                        {
-                            model: db.Categories, as: 'dataCategory',
-                            attributes: ['name', 'categoryId'],
-                            where: {
-                                type: categore
+    getProductByCategoryDetailLimit: (categoryDetailId, limit) => {
+        return new Promise(async (resolve, reject) => {
+            db.Product.findAll({
+                where: {
+                    categoryDetailId
+                },
+                attributes: {
+                    exclude: ['DiscountId', 'ProductTypeId']
+                },
+                include: [
+                    {
+                        model: db.CategoryDetail, as: 'dataCategoryDetail',
+                        attributes: ['id', 'name', 'categoryId', 'type'],
+                        include: [
+                            {
+                                model: db.Category, as: 'dataCategory',
+                                attributes: ['id', 'name', 'type'],
                             }
-                        },
-                        {
-                            model: db.AllCodes, as: 'dataBrand',
-                            attributes: ['valueEn'],
-                        },
-                        {
-                            model: db.AllCodes, as: 'dataDiscount',
-                            attributes: ['valueEn'],
-                        }
-                    ],
-                    offset: +page * (+process.env.LIMIT_PAGE),
-                    limit: +process.env.LIMIT_PAGE,
-                    raw: true,
-                    nest: true
-                })
-                resolve({
-                    errCode: 0,
-                    data: products
-                })
-            } catch (e) {
-                rejcet(e)
-            }
+                        ]
+                    },
+                    {
+                        model: db.Discount, as: 'dataDiscounts',
+                        attributes: ['id', 'value', 'description'],
+                    },
+                    {
+                        model: db.Logo, as: 'dataLogos',
+                        attributes: ['id', 'name', 'image'],
+                        
+                    },
+                    {
+                        model: db.Brand, as: 'dataBrands',
+                        attributes: ['id', 'name'],
+                    },
+                    {
+                        model: db.ImageProduct, as: 'dataImageProducts',
+                        attributes: ['image'],
+                        limit: 1
+                    },
+                    {
+                        model: db.Size, as: 'dataSizeDetail',
+                        through: { model: db.SizeDetail },
+                    }
+                ],
+                limit: +limit
+            })
+            .then(resolve)
+            .catch(reject)
         })
     },
     findlAndCountAllSortNotExistOptionColor: async (optionCategory, page, sortOption, optionLogos, optionTypeName, optionColors, limit) => {

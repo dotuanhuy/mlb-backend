@@ -300,19 +300,26 @@ module.exports = {
             })
         }
     },
-    getLimitProducts: async (req, res) => {
+    getProductByCategoryDetailLimit: async (req, res) => {
         try {
-            if (!req.query.page || !req.query.categore) {
+            const {id, limit} = req?.query
+            if (!id || !limit){
                 return res.status(200).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
                 })
             }
-            let data = await productService.getLimitProductByCategoryService(req.query.categore, req.query.page)
-            return res.status(200).json(data)
+            let data = await productService.getProductByCategoryDetailLimit(id, limit)
+            if (!data || data.length === 0) {
+                return res.status(400).json({ errCode: 1, errMessage: 'Product same is not exist'})
+            } 
+            return res.status(200).json({
+                errCode: 0,
+                data
+            })
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status().json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
