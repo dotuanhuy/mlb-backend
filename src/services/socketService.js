@@ -1,18 +1,16 @@
+
 class SocketService {
 
     // connect
     connection(socket) {
-        console.log(socket.id)
-        socket.on('disconnect', () => {
-            console.log('Client disconnected');
-        });
-
         // event 
-
-        socket.on('updateReview', (data) => {
-            console.log('check data: ')
-            socket.emit('review', data)
+        socket.on('send_review', ({reviews, _productId}) => {
+            global._io.emit('receive_review', {reviews, _productId})
         })
+
+        socket.on('disconnect', () => {
+            
+        });
     }
 
 }

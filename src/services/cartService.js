@@ -160,7 +160,7 @@ let changeCartService = ({cartDetailId, typeStep}) => {
                 }
                 resolve({
                     errCode: 0,
-                    errMessage: 'Delete a product in cart success'
+                    errMessage: 'Change product in cart success'
                 })
             }
             else {

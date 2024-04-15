@@ -2,7 +2,7 @@ const cartService = require('../services/cartService')
 
 let getCartsByUser = async (req, res) => {
     try {
-        const {userId} = req?.query
+        const userId = req?.user.id
         let data = []
         if (!userId) {
             return res.status(200).json({

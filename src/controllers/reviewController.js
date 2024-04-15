@@ -105,7 +105,7 @@ module.exports = {
                     errMessage: 'Missing require parameters'
                 })
             } 
-            const feedback = await reviewSevice.deleteFeedback(+id)
+            const feedback = await reviewSevice.deleteFeedback([id])
             // if (feedback[0] === 1) {
             //     return res.status(200).json({
             //         errCode: 1,
@@ -173,32 +173,19 @@ module.exports = {
     },
     deleteReview: async (req, res) => {
         try {
-            const {id, userId} = req.query
-            if (!id || !userId) {
+            const {id} = req.query
+            if (!id) {
                 return res.status(200).json({
                     errCode: -1,
                     errMessage: 'Missing require parameters'
                 })
             } 
-            const user = req.user
-            if (!user) {
-                return res.status(200).json({
-                    errCode: -1,
-                    errMessage: 'User does not exists'
-                })
-            }
-            if (user?.id !== userId && user?.roleId !== +process.env.ADMIN_ROLE) {
-                return res.status(200).json({
-                    errCode: -1,
-                    errMessage: 'You do not have permission to this function'
-                })
-            }
             const arrReview = await reviewSevice.getFeedbackByReviewId(id)
             if (arrReview.lenth !== 0) {
                 const arrReviewId = arrReview.map(item => item.id)
-                const feedback = await reviewSevice.deleteFeedback({arrReviewId})
+                const feedback = await reviewSevice.deleteFeedback(arrReviewId)
             }
-            const review = await reviewSevice.deleteReview({id})
+            const review = await reviewSevice.deleteReview(id)
             // if (review[0] === 1) {
             //     return res.status(200).json({
             //         errCode: 1,
@@ -223,7 +210,35 @@ module.exports = {
             })
         }
     },
-
+    createReview: async (req, res) => {
+        try {
+            const {productId, rate, content} = req.body
+            const {id} = req.user
+            if (!productId || !rate || !content || !id) {
+                return res.status(200).json({
+                    errCode: -1,
+                    errMessage: 'Missing require parameters'
+                })
+            } 
+            const review = await reviewSevice.createReview({userId: id, productId, rate, content})
+            if (!review) {
+                return res.status(200).json({
+                    errCode: 1,
+                    errMessage: 'Create review faild'
+                })
+            }
+            return res.status(200).json({
+                errCode: 0,
+                errMessage: 'Create review success'
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(200).json({
+                errCode: -1,
+                errMessage: 'Error the from server'
+            })
+        }
+    },
     // getReviewProduct: async (req, res) => {
     //     try {
     //         const {productId} = req.query

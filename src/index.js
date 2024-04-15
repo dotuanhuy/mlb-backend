@@ -19,7 +19,7 @@ const server = http.createServer(app)
 const io = require('socket.io')(server, {
     cors: {
         origin: process.env.CLIENT_URL,
-        methods: ['GET', 'POST']
+        creadentials: true
     }
 })
 global._io = io

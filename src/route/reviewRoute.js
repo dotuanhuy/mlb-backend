@@ -28,6 +28,9 @@ reviewRoute.delete('/feedback/delete/:id',
 // POST: /api/v1/review/update
 reviewRoute.post('/update', verifyAccessToken, reviewController.updateReview)
 // DELETE: /api/v1/review/delete
-reviewRoute.delete('/delete', verifyAccessToken, reviewController.deleteReview)
+reviewRoute.delete('/delete', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, reviewController.deleteReview)
+// POST: /api/v1/review/create
+reviewRoute.post('/create', verifyAccessToken, reviewController.createReview)
+
 
 module.exports = reviewRoute

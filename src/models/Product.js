@@ -1,4 +1,5 @@
 'use strict';
+const { model } = require('mongoose');
 const { Model } = require('sequelize');
 
 module.exports = (sequelize, DataTypes) => {
@@ -26,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
             // Products.belongsToMany(models.User, { through: models.Favourite, foreignKey: 'productId', as: 'dataProductFavourite' })
             
             Products.hasMany(models.Favourite, { foreignKey: 'productId', as: 'dataProductFavourite' })
+            Products.belongsToMany(models.Order, { through: models.OrderDetail , foreignKey: 'productId', as: 'dataOrderProduct' })
         }
     }   
     Products.init({

@@ -1,4 +1,5 @@
 const db = require('../models/index')
+const Op = db.Sequelize.Op
 
 module.exports = {
     getReviewProduct: (productId) => {
@@ -64,7 +65,7 @@ module.exports = {
             .catch(reject)
         })
     },
-    deleteFeedback: (id) => {
+    deleteFeedback: (listId) => {
         return new Promise((resolve, reject) => {
             // db.Feedback.destroy({ 
             //     where: { id }
@@ -72,7 +73,9 @@ module.exports = {
             db.Feedback.destroy(
             { 
                 where: {
-                    id
+                    id: {
+                        [Op.in]: listId
+                    }
                 }
             })
             .then(resolve)
@@ -108,16 +111,30 @@ module.exports = {
             .catch(reject)
         })
     },
-    deleteReview: ({id}) => {
+    deleteReview: (id) => {
         return new Promise((resolve, reject) => {
-            // db.Review.destroy({ 
+            db.Review.destroy({ 
+                where: { 
+                    id
+                }
+            })
+            // db.Review.update({
+            //     status: 0
+            // },
+            // { 
             //     where: { id }
             // })
-            db.Review.update({
-                status: 0
-            },
-            { 
-                where: { id }
+            .then(resolve)
+            .catch(reject)
+        })
+    },
+    createReview: ({userId, productId, rate, content}) => {
+        return new Promise((resolve, reject) => {
+            db.Review.create({
+                userId, 
+                productId,
+                rate, 
+                content
             })
             .then(resolve)
             .catch(reject)
