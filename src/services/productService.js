@@ -932,5 +932,16 @@ module.exports = {
                 reject(e)
             }
         })
+    },
+    updateQuantity: ({id, quantity}) => {
+        return new Promise((resolve, reject) => {
+            db.Product.update({
+                quantity    
+            },{
+                where: { id }
+            })
+            .then(resolve)
+            .catch(reject)
+        })
     }
 }

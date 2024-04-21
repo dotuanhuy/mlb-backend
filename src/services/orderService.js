@@ -1,7 +1,33 @@
-const { where } = require('sequelize')
 const db = require('../models/index')
 
 module.exports = {
+    getAllOrdersByUser: (userId) => {
+        return new Promise((resolve, reject) => {
+            db.Order.findAll({
+                where: {
+                    userId
+                },
+                include: [
+                    {
+                        model: db.Payment, as: 'dataPayment'
+                    },
+                    {
+                        model: db.Product, as: 'dataOrderProduct',
+                        include: [
+                            {
+                                model: db.Discount, as: 'dataDiscounts'
+                            }
+                        ]
+                    },
+                ],
+                order: [['id', 'DESC']],
+                raw: true,
+                nest: true
+            })
+            .then(resolve)
+            .catch(reject)
+        })
+    },
     getOrderLimit: (page) => {
         return new Promise((resolve, reject) => {
             db.Order.findAndCountAll({
@@ -140,6 +166,34 @@ module.exports = {
                         }
                     }
                 ]
+            })
+            .then(resolve)
+            .catch(reject)
+        })
+    },
+    createOrder: (data) => {
+        return new Promise((resolve, reject) => {
+            db.Order.create({
+                userId: data.userId,
+                fullName: data.fullName,
+                phone: data.phone,
+                address: data.address,
+                totalMoney: data.totalMoney,
+                shippingMethod: data.shippingMethod,
+                orderStatus: 'wait confirmation',
+                isCancelled: 0
+            })
+            .then(resolve)
+            .catch(reject)
+        })
+    },
+    createOrderDetail: ({orderId, productId, size, quantity}) => {
+        return new Promise((resolve, reject) => {
+            db.OrderDetail.create({
+                orderId,
+                productId,
+                size,
+                quantity
             })
             .then(resolve)
             .catch(reject)

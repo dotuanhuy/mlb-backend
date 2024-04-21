@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
             // User.belongsToMany(models.Product, { through: models.Favourite, foreignKey: 'userId', as: 'dataProductFavourite'})
             User.hasMany(models.Favourite, { foreignKey: 'userId', as: 'dataUserProductFavourite'})
             User.hasMany(models.Order, { foreignKey: 'userId', as: 'dataOrder'})
+            User.hasMany(models.Notification, { foreignKey: 'userId', as: 'dataNotification'})
         
         }
     }

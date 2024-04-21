@@ -5,8 +5,14 @@ const {verifyAccessToken} = require('../middlewares/verifyAccessTokenMiddleware'
 
 const orderRoute = express.Router()
 
-// GET: /api/v1/order
+// GET: /api/v1/order/limit
 orderRoute.get('/', 
+    verifyAccessToken, 
+    orderController.getAllOrdersByUser
+)
+
+// GET: /api/v1/order/limit
+orderRoute.get('/limit', 
     verifyAccessToken, 
     authMiddlewareController.verifyTokenAdmin,
     orderController.getOrderLimit
@@ -15,7 +21,6 @@ orderRoute.get('/',
 // GET: /api/v1/order/search
 orderRoute.get('/search', 
     verifyAccessToken, 
-    authMiddlewareController.verifyTokenAdmin,
     orderController.getOrderById
 )
 
@@ -37,6 +42,12 @@ orderRoute.post('/cancel',
 orderRoute.get('/user',
     verifyAccessToken,
     orderController.getListOrderId
+)
+
+// POST: /api/v1/order/create
+orderRoute.post('/create', 
+    verifyAccessToken,
+    orderController.createOrder
 )
 
 module.exports = orderRoute

@@ -1,7 +1,7 @@
 const db = require('../models/index')
 
 module.exports = {
-    getAllBrandsService: () => {
+    getAllBrands: () => {
         return new Promise(async (resolve, reject) => {
             try {
                 let brands = await db.Brand.findAll()

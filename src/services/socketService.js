@@ -7,7 +7,9 @@ class SocketService {
         socket.on('send_review', ({reviews, _productId}) => {
             global._io.emit('receive_review', {reviews, _productId})
         })
+        socket.on('notification', (notification) => {
 
+        })
         socket.on('disconnect', () => {
             
         });
