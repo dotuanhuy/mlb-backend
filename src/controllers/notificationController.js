@@ -29,15 +29,28 @@ module.exports = {
                 content: typeText === 'order' ? `Bạn ${firstName} ${lastName} đã đặt đơn hàng. Vui lòng vào xác nhận` : '', 
                 typeText 
             })
-            if (!notification) {
-                return res.status(400).json({
-                    errCode: 1,
-                    errMessage: 'Create notification failed'
-                }) 
-            }
             return res.status(200).json({
                 errCode: 0,
                 errMessage: 'Create notification success'
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                errCode: -1,
+                errMessage: 'Error the from server'
+            })
+        }
+    },
+    updateIsRead: async (req, res) => {
+        try {
+            const {id} = req.query
+            if (!id) {
+                return res.status(400).json("Missing required parameter")
+            }
+            const notification = await notificationService.updateIsRead(id)
+            return res.status(200).json({
+                errCode: 0,
+                errMessage: 'Update isRead success'
             })
         } catch (e) {
             console.log(e)

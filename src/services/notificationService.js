@@ -7,7 +7,8 @@ module.exports = {
                 include: {
                     model: db.User, as: 'dataNotification',
                     attribute: ['id', 'firstName', 'lastName', 'avatar']
-                }
+                },
+                order: [['id', 'DESC']]
             })
             .then(resolve)
             .catch(reject)
@@ -22,6 +23,15 @@ module.exports = {
                 typeText,
                 isRead: 0
             })
+        })
+    },
+    updateIsRead: (id) => {
+        return new Promise((resolve, reject) => {
+            db.Notification.update({ isRead: 1 }, {
+                where: { id }
+            })
+            .then(resolve)
+            .catch(reject)
         })
     }
 }

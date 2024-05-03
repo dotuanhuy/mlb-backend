@@ -2,6 +2,7 @@ const productService = require('../services/productService')
 const sizeService = require('../services/sizeService')
 const colorService = require('../services/colorService')
 const optionCategories = require('../utils/optionCategory')
+const { category } = require('../utils/constant')
 
 module.exports = {
     createNewProduct: async (req, res, next) => {
@@ -59,8 +60,20 @@ module.exports = {
     },
     getAllProductPublic: async (req, res) => {
         try {
-            let data = await productService.getAllProductPublicService()
-            return res.status(200).json(data)
+            const optionShoes = optionCategories.optionCategory(category.shoes)
+            const optionBag = optionCategories.optionCategory(category.bag)
+            const optionHat = optionCategories.optionCategory(category.hat)
+            const optionClothes = optionCategories.optionCategory(category.clothes)
+
+            let shoes = await productService.getAllProductPublicService(optionShoes)
+            let bags = await productService.getAllProductPublicService(optionBag)
+            let hats = await productService.getAllProductPublicService(optionHat)
+            let clothes = await productService.getAllProductPublicService(optionClothes)
+            const data = { shoes, bags, hats, clothes }
+            return res.status(200).json({
+                errCode: 0,
+                data
+            })
         } catch(e) {
             console.log(e)
             return res.status(200).json({

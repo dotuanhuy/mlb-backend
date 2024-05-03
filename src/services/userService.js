@@ -357,6 +357,9 @@ let getLimitUserService = (page) => {
                 attributes: {
                     exclude: ['password']
                 },
+                include: {
+                    model: db.Role, as: 'dataRole'
+                },
                 order: [['id', 'DESC']],
                 offset: +page * (+process.env.LIMIT_PAGE),
                 limit: +process.env.LIMIT_PAGE,

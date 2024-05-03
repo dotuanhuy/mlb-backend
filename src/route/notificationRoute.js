@@ -18,4 +18,11 @@ notificationRoute.post('/create',
     notificationController.createNotification
 )
 
+// POST: /api/v1/notification/update/read
+notificationRoute.post('/update/read', 
+    verifyAccessToken,
+    authMiddlewareController.verifyTokenAdmin,
+    notificationController.updateIsRead
+)
+
 module.exports = notificationRoute

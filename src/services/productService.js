@@ -62,53 +62,58 @@ module.exports = {
             }
         })
     },
-    getAllProductPublicService: () => {
+    getAllProductPublicService: (categoryDetailId) => {
         return new Promise(async (resolve, reject) => {
-            try {
-                let products = await db.Product.findAll({
-                    include: [
-                        {
-                            model: db.CategoryDetail, as: 'dataCategoryDetail',
-                            attributes: ['id', 'name', 'categoryId', 'type'],
-                            include: [
-                                {
-                                    model: db.Category, as: 'dataCategory',
-                                    attributes: ['id', 'name', 'type'],
-                                }
-                            ]
-                        },
-                        {
-                            model: db.Discount, as: 'dataDiscounts',
-                            attributes: ['id', 'value', 'description'],
-                        },
-                        {
-                            model: db.Logo, as: 'dataLogos',
-                            attributes: ['id', 'name', 'image'],
-                        },
-                        {
-                            model: db.Brand, as: 'dataBrands',
-                            attributes: ['id', 'name'],
-                        },
-                        {
-                            model: db.ImageProduct, as: 'dataImageProducts',
-                            attributes: ['image'],
-                            limit: 1
-                        },
-                        {
-                            model: db.Size, as: 'dataSizeDetail',
-                            through: { model: db.SizeDetail },
-                        }
-                    ],
-                    raw: false,
-                    nest: true
-                })
-                resolve({
-                    errCode: 0,
-                    data: products
-                })
-            } catch (e) {
-                reject(e)
-            }
+            db.Product.findAll({
+                where: {
+                    categoryDetailId
+                },
+                attributes: {
+                    exclude: ['DiscountId', 'ProductTypeId']
+                },
+                include: [
+                    {
+                        model: db.CategoryDetail, as: 'dataCategoryDetail',
+                        attributes: ['id', 'name', 'categoryId', 'type'],
+                        include: [
+                            {
+                                model: db.Category, as: 'dataCategory',
+                                attributes: ['id', 'name', 'type'],
+                            }
+                        ]
+                    },
+                    {
+                        model: db.ProductType, as: 'dataProductType',
+                        attributes: ['name']
+                    },
+                    {
+                        model: db.Discount, as: 'dataDiscounts',
+                        attributes: ['id', 'value', 'description'],
+                    },
+                    {
+                        model: db.Logo, as: 'dataLogos',
+                        attributes: ['id', 'name', 'image'],
+                    },
+                    {
+                        model: db.Brand, as: 'dataBrands',
+                        attributes: ['id', 'name'],
+                    },
+                    {
+                        model: db.ImageProduct, as: 'dataImageProducts',
+                        attributes: ['image'],
+                        limit: 1
+                    },
+                    {
+                        model: db.Size, as: 'dataSizeDetail',
+                        through: { model: db.SizeDetail },
+                    }
+                ],
+                limit: +process.env.LIMIT_HOME_PAGE,
+                raw: false,
+                nest: true
+            })
+            .then(resolve)
+            .catch(reject)
         })
     },
     deleteProductService: (id) => {

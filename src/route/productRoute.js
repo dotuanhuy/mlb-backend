@@ -1,7 +1,5 @@
 const express = require('express')
 const productController = require('../controllers/productController')
-const sizeController = require('../controllers/sizeController')
-const colorController = require('../controllers/colorController')
 const authMiddlewareController = require('../middlewares/authMiddlewareController')
 const {verifyAccessToken} = require('../middlewares/verifyAccessTokenMiddleware')
 const { upload, uploadMultiple } = require('../middlewares/multer')
@@ -60,7 +58,7 @@ productRoute.get('/description', productController.getAllDescriptionProduct)
 // POST: /api/v1/product/description/create
 productRoute.post('/description/create', productController.addDescriptionProduct)
 // GET: /api/v1/product/public
-productRoute.get('/public', productController.getAllProductPublic)
+productRoute.get('/home_page', productController.getAllProductPublic)
 // GET: /api/v1/product/category/count
 productRoute.get('/category/count', 
     verifyAccessToken, 

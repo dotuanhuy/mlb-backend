@@ -21,8 +21,8 @@ module.exports = {
                     },
                 ],
                 order: [['id', 'DESC']],
-                raw: true,
-                nest: true
+                // raw: true,
+                // nest: true
             })
             .then(resolve)
             .catch(reject)
@@ -198,5 +198,5 @@ module.exports = {
             .then(resolve)
             .catch(reject)
         })
-    }
+    },
 }
