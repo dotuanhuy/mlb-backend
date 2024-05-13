@@ -1,10 +1,22 @@
 const db = require('../models/index')
 const Op = db.Sequelize.Op
 const {Sequelize} = require('sequelize')
-const outSortOptionByWhere = require('../utils/outputSortOptionsByWhere')
 const optionCategories = require('../utils/optionCategory')
 
 module.exports = {
+    getAllProductByYear: (year) => {
+        return new Promise((resolve, reject) => {
+            db.Product.findAll({
+                where: {
+                    createdAt: {
+                        [Op.between]: [`${year}-01-01`, `${year}-12-31`]
+                    }
+                }
+            })
+            .then(resolve)
+            .catch(reject)
+        })
+    },
     getProductByCode: (code) => {
         return new Promise((resolve, reject) => {
             db.Product.findOne({
@@ -20,6 +32,7 @@ module.exports = {
                 name: data.name,
                 code: data.code,
                 price: data.price,
+                originalPrice: data.originalPrice,
                 categoryDetailId: data.categoryDetailId,
                 discountId: data.discountId,
                 image: data.image,
@@ -37,29 +50,22 @@ module.exports = {
         })
     },
     getAllProductsService: (type) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let products = await db.Product.findAll({
-                    include: [
-                        {
-                            model: db.Categories, as: 'dataCategory',
-                            attributes: ['name', 'categoryId'],
-                            where: {
-                                type: type
-                            }
-                        },
-                    ],
-                    raw: false,
-                    nest: true
-                })
-                resolve({
-                    errCode: 0,
-                    data: products
-                })
-               
-            } catch(e) {
-                reject(e)
-            }
+        return new Promise((resolve, reject) => {
+            db.Product.findAll({
+                include: [
+                    {
+                        model: db.Categories, as: 'dataCategory',
+                        attributes: ['name', 'categoryId'],
+                        where: {
+                            type: type
+                        }
+                    },
+                ],
+                raw: false,
+                nest: true
+            })
+            .then(resolve)
+            .catch(reject)
         })
     },
     getAllProductPublicService: (categoryDetailId) => {
@@ -223,6 +229,7 @@ module.exports = {
                 name: data.name,
                 code: data.code,
                 price: data.price,
+                originalPrice: data.originalPrice,
                 categoryDetailId: data.categoryDetailId,
                 productTypeId: data.productTypeId,
                 discountId: data.discountId,
@@ -242,20 +249,24 @@ module.exports = {
         })
     },
     getCountProductsService: () => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let quantity = await db.Product.findOne({
-                    attributes: [
-                        [Sequelize.fn('COUNT', Sequelize.col('id')), 'count']
-                    ]
-                })
-                resolve({
-                    errCode: 0,
-                    data: quantity
-                })
-            } catch (e) {
-                reject(e)
-            }
+        return new Promise((resolve, reject) => {
+            db.Product.count('id')
+            .then(resolve)
+            .catch(reject)
+        })
+    },
+    getTotalProducts: () => {
+        return new Promise((resolve, reject) => {
+            db.Product.sum('quantity')
+            .then(resolve)
+            .catch(reject)
+        })
+    },
+    getTotalProductSold: () => {
+        return new Promise((resolve, reject) => {
+            db.Product.sum('quantitySold')
+            .then(resolve)
+            .catch(reject)
         })
     },
     changeImageMainProductService: ({id, image}) => {
@@ -691,136 +702,6 @@ module.exports = {
             }
         })
     },
-    // let findlAndCountAllSortExistOptionColor = async (optionCategory, page, sortOption, optionColors, optionLogos, optionTypeName) => {
-    //     return new Promise(async (resolve, reject) => {
-    //         try {
-    //             let products = []
-    //             if (!optionTypeName) {
-    //                 products = await db.ColorDetail.findAndCountAll({
-    //                     include: [
-    //                         {
-    //                             model: db.Product, as: 'dataColorDetail',
-    //                             attributes: {
-    //                                 exclude: ['DiscountId', 'ProductTypeId']
-    //                             },
-    //                             include: [
-    //                                 {
-    //                                     model: db.CategoryDetail, as: 'dataCategoryDetail',
-    //                                     attributes: ['id', 'name', 'categoryId', 'type'],
-    //                                     include: [
-    //                                         {
-    //                                             model: db.Category, as: 'dataCategory',
-    //                                             attributes: ['id', 'name', 'type'],
-    //                                         }
-    //                                     ]
-    //                                 },
-    //                                 {
-    //                                     model: db.Discount, as: 'dataDiscounts',
-    //                                     attributes: ['id', 'value', 'description'],
-    //                                 },
-    //                                 {
-    //                                     model: db.Logo, as: 'dataLogos',
-    //                                     attributes: ['id', 'name', 'image'],
-    //                                     where: optionLogos.length > 0 ?  {
-    //                                         id: optionLogos
-    //                                     } : null
-    //                                 },
-    //                                 {
-    //                                     model: db.Brand, as: 'dataBrands',
-    //                                     attributes: ['id', 'name'],
-    //                                 },
-    //                                 {
-    //                                     model: db.Size, as: 'dataSizeDetail',
-    //                                     through: { model: db.SizeDetail },
-    //                                 }
-    //                             ],
-    //                             where: {
-    //                                 categoryDetailId : optionCategory
-    //                             },
-    //                             order: sortOption === process.env.SORT_NAME_DEFAULT ? [] : [sortOption],
-    //                         }
-    //                     ],
-    //                     where: {
-    //                         colorId: optionColors
-    //                     },
-    //                     group: ['productId'],
-    //                     offset: +page * (+process.env.LIMIT_PAGE),
-    //                     limit: +process.env.LIMIT_PAGE,
-    //                     // raw: true,
-    //                     // nest: true
-    //                 })
-    //             }
-    //             else {
-    //                 products = await db.ColorDetail.findAndCountAll({
-    //                     include: [
-    //                         {
-    //                             model: db.Product, as: 'dataColorDetail',
-    //                             attributes: {
-    //                                 exclude: ['DiscountId', 'ProductTypeId']
-    //                             },
-    //                             include: [
-    //                                 {
-    //                                     model: db.CategoryDetail, as: 'dataCategoryDetail',
-    //                                     attributes: ['id', 'name', 'categoryId', 'type'],
-    //                                     include: [
-    //                                         {
-    //                                             model: db.Category, as: 'dataCategory',
-    //                                             attributes: ['id', 'name', 'type'],
-    //                                         }
-    //                                     ]
-    //                                 },
-    //                                 {
-    //                                     model: db.Discount, as: 'dataDiscounts',
-    //                                     attributes: ['id', 'value', 'description'],
-    //                                 },
-    //                                 {
-    //                                     model: db.Logo, as: 'dataLogos',
-    //                                     attributes: ['id', 'name', 'image'],
-    //                                     where: optionLogos.length > 0 ?  {
-    //                                         id: optionLogos
-    //                                     } : null
-    //                                 },
-    //                                 {
-    //                                     model: db.Brand, as: 'dataBrands',
-    //                                     attributes: ['id', 'name'],
-    //                                 },
-    //                                 {
-    //                                     model: db.Size, as: 'dataSizeDetail',
-    //                                     through: { model: db.SizeDetail },
-    //                                 }
-    //                             ],
-    //                             where: {
-    //                                 categoryDetailId : optionCategory,
-    //                                 productTypeId: optionTypeName
-    //                             },
-    //                             order: sortOption === process.env.SORT_NAME_DEFAULT ? [] : [sortOption],
-    //                         }
-    //                     ],
-    //                     where: {
-    //                         colorId: optionColors
-    //                     },
-    //                     group: ['productId'],
-    //                     offset: +page * (+process.env.LIMIT_PAGE),
-    //                     limit: +process.env.LIMIT_PAGE,
-    //                     // raw: true,
-    //                     // nest: true
-    //                 })
-    //             }
-    //             let newData = products?.rows?.map(item => item.dataColorDetail)
-    //             resolve({
-    //                 errCode: 0,
-    //                 data:  {
-    //                     count: products?.count.length,
-    //                     rows: newData
-    //                 }
-    //             })
-    //         } catch (e) {
-    //             reject(e) 
-    //         }
-        
-    //     })
-    // }
-    
     searchProductByNameService: (productName, offset) => {
         return new Promise(async (resolve, reject) => {
             try {
@@ -942,6 +823,17 @@ module.exports = {
         return new Promise((resolve, reject) => {
             db.Product.update({
                 quantity    
+            },{
+                where: { id }
+            })
+            .then(resolve)
+            .catch(reject)
+        })
+    },
+    updateQuantitySold: ({id, quantitySold}) => {
+        return new Promise((resolve, reject) => {
+            db.Product.update({
+                quantitySold  
             },{
                 where: { id }
             })

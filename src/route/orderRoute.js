@@ -50,4 +50,11 @@ orderRoute.post('/create',
     orderController.createOrder
 )
 
+// GET: /api/v1/order/total
+orderRoute.get('/total', 
+    verifyAccessToken,
+    authMiddlewareController.verifyTokenAdmin,
+    orderController.getTotalOrder
+)
+
 module.exports = orderRoute

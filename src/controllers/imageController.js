@@ -1,8 +1,6 @@
 const imageService = require('../services/imageService')
 const optionCategories = require('../utils/optionCategory')
 
-
-
 module.exports = {
     getAllImagesProduct: async (req, res) => {
         try {

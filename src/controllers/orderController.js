@@ -174,7 +174,9 @@ module.exports = {
                         id: item?.id,
                         quantityRemaining: product?.dataValues?.quantity - item?.quantityBuy,
                         size: item?.size,
-                        quantityBuy: item?.quantityBuy
+                        quantityBuy: item?.quantityBuy,
+                        price: item?.dataDiscounts?.value !== 0 ? +item?.price - +item?.price * +item?.dataDiscounts?.value : +item?.price,
+                        quantitySold: product?.dataValues?.quantitySold + item?.quantityBuy
                     }
                     return obj
                 }
@@ -183,12 +185,14 @@ module.exports = {
                 .then(async arr => {
                     const order = await orderService.createOrder(data)
                     for (const item of arr) {
-                        const info = await productService.updateQuantity({ id: item?.id, quantity: item?.quantityRemaining })
+                        const infoQuantity = await productService.updateQuantity({ id: item?.id, quantity: item?.quantityRemaining })
+                        const infoQuantitySold = await productService.updateQuantitySold({ id: item?.id, quantitySold: item.quantitySold })
                         const orderDetail = await orderService.createOrderDetail({
                             orderId: order?.dataValues?.id,
                             productId: item?.id,
                             size: item?.size,
-                            quantity: item?.quantityBuy
+                            quantity: item?.quantityBuy,
+                            price: item?.price
                         })
                     }
                     const payment = await paymentService.createPayment({
@@ -210,5 +214,17 @@ module.exports = {
             console.log(e)
             return res.status(500).json('Error from server')
         }
-    }
+    },
+    getTotalOrder: async (req, res) => {
+        try {
+            const totalOrder = await orderService.getTotalOrder()
+            return res.status(200).json({
+                errCode: 0,
+                data: totalOrder
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json('Error from server')
+        }
+    },
 }

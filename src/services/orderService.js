@@ -1,6 +1,30 @@
 const db = require('../models/index')
 
 module.exports = {
+    getAllOrderFinished: () => {
+        return new Promise((resolve, reject) => {
+            db.Order.findAll({
+                where: {
+                    orderStatus: 'finished',
+                },
+                include: [
+                    {
+                        model: db.Payment, as: 'dataPayment'
+                    },
+                    {
+                        model: db.Product, as: 'dataOrderProduct',
+                        include: [
+                            {
+                                model: db.Discount, as: 'dataDiscounts'
+                            }
+                        ]
+                    },
+                ],
+            })
+            .then(resolve)
+            .catch(reject)
+        })
+    },
     getAllOrdersByUser: (userId) => {
         return new Promise((resolve, reject) => {
             db.Order.findAll({
@@ -21,8 +45,6 @@ module.exports = {
                     },
                 ],
                 order: [['id', 'DESC']],
-                // raw: true,
-                // nest: true
             })
             .then(resolve)
             .catch(reject)
@@ -187,14 +209,22 @@ module.exports = {
             .catch(reject)
         })
     },
-    createOrderDetail: ({orderId, productId, size, quantity}) => {
+    createOrderDetail: ({orderId, productId, size, quantity, price}) => {
         return new Promise((resolve, reject) => {
             db.OrderDetail.create({
                 orderId,
                 productId,
                 size,
-                quantity
+                quantity,
+                price
             })
+            .then(resolve)
+            .catch(reject)
+        })
+    },
+    getTotalOrder: () => {
+        return new Promise((resolve, reject) => {
+            db.Order.count()
             .then(resolve)
             .catch(reject)
         })

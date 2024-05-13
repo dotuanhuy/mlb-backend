@@ -48,8 +48,11 @@ module.exports = {
                     errMessage: 'Missing required parameters'
                 })
             }   
-            let data = await productService.getAllProductsService(req.query.type)
-            return res.status(200).json(data)
+            const data = await productService.getAllProductsService(req.query.type)
+            return res.status(200).json({
+                errCode: 0,
+                data
+            })
         } catch(e) {
             console.log(e)
             return res.status(200).json({
@@ -163,8 +166,15 @@ module.exports = {
     },
     getCountProducts: async (req, res) => {
         try {
-            let data = await productService.getCountProductsService() 
-            return res.status(200).json(data)
+            const totalProducts = await productService.getTotalProducts() 
+            const totalProductsSold = await productService.getTotalProductSold() 
+            return res.status(200).json({
+                errCode: 0,
+                data: {
+                    totalProducts,
+                    totalProductsSold
+                }
+            })
         } catch (e) {
             console.log(e)
             return res.status(200).json({

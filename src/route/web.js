@@ -16,6 +16,7 @@ const cartRoute = require('./cartRoute')
 const firebaseRoute = require('./firebaseRoute')
 const orderRoute = require('./orderRoute')
 const notificationRoute = require('./notificationRoute')
+const reportRoute = require('./reportRoute')
 
 let router = express.Router()
 
@@ -38,5 +39,6 @@ router.use(`/api/${apiVersion}/cart`, cartRoute)
 router.use(`/api/${apiVersion}/firebase`, firebaseRoute)
 router.use(`/api/${apiVersion}/order`, orderRoute)
 router.use(`/api/${apiVersion}/notification`, notificationRoute)
+router.use(`/api/${apiVersion}/report`, reportRoute)
 
 module.exports = router

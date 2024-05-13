@@ -51,7 +51,7 @@ module.exports = {
             );
             return {
                 errCode: 0,
-                errMessage: 'Create image success'
+                errMessage: 'Thêm ảnh thành công'
             };
         } catch (e) {
             throw e;
@@ -61,15 +61,6 @@ module.exports = {
         try {
             await Promise.all(
                 arrId.map(async item => {
-                    // let image = await db.ImageProduct.findOne({
-                    //     where: {
-                    //         image: item,
-                    //         productId
-                    //     }
-                    // });
-                    // if (image) {
-                    //     await image.destroy()
-                    // }
                     await db.ImageProduct.destroy({
                         where: {
                             id: arrId
@@ -80,7 +71,7 @@ module.exports = {
     
             return {
                 errCode: 0,
-                errMessage: 'Delete image success'
+                errMessage: 'Xóa ảnh thành công'
             };
         } catch (e) {
             throw e;
