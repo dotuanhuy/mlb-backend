@@ -1,10 +1,10 @@
 const db = require('../models/index')
 const bcrypt = require('bcrypt')
-const {Sequelize} = require('sequelize')
+const { Sequelize } = require('sequelize')
 const salt = bcrypt.genSaltSync(10)
 const fs = require('fs');
 const OptGeneration = require('otp-generator')
-const {createOTPService, validOTPService} = require('./otpService')
+const { createOTPService, validOTPService } = require('./otpService')
 const Otp = require('../models/mongodb/otp');
 const { sendEmail } = require('./nodemailerService')
 
@@ -15,7 +15,7 @@ module.exports = {
             try {
                 const hashPassowrd = await bcrypt.hashSync(password, salt)
                 resolve(hashPassowrd)
-            }catch (err) {
+            } catch (err) {
                 reject(err)
             }
         })
@@ -71,7 +71,7 @@ module.exports = {
             }
         })
     },
-    findUserByIdAndTokenService: ({id, token}) => {
+    findUserByIdAndTokenService: ({ id, token }) => {
         return new Promise(async (resolve, resject) => {
             try {
                 const user = await db.User.findOne({
@@ -106,19 +106,11 @@ module.exports = {
     },
     checkEmail: (email) => {
         return new Promise(async (resolve, resject) => {
-            try {
-                const user = await db.User.findOne({
-                    where: { email: email }
-                })
-                if (user) {
-                    resolve(true)
-                }
-                else {
-                    resolve(false)
-                }
-            } catch (e) {
-                resject(e)
-            }
+            db.User.findOne({
+                where: { email: email }
+            })
+                .then(resolve)
+                .catch(resject)
         })
     },
     createNewUserService: (data) => {
@@ -127,7 +119,7 @@ module.exports = {
                 let check = await checkEmail(data.email)
                 if (check) {
                     resolve({
-                        errCode: 1, 
+                        errCode: 1,
                         errMessage: 'Email already exists'
                     })
                 }
@@ -141,23 +133,23 @@ module.exports = {
                     else {
                         const hashPasswordBcrypt = await hasUserPassword(data.password)
                         await db.User.create({
-                                email: data.email,
-                                password: hashPasswordBcrypt,
-                                firstName: data.firstName,
-                                lastName: data.lastName,
-                                phone: data.phone,
-                                address: data.address,
-                                gender: data.gender,
-                                roleId: data.roleId,
-                                avatar: data.avatar
-                            })
+                            email: data.email,
+                            password: hashPasswordBcrypt,
+                            firstName: data.firstName,
+                            lastName: data.lastName,
+                            phone: data.phone,
+                            address: data.address,
+                            gender: data.gender,
+                            roleId: data.roleId,
+                            avatar: data.avatar
+                        })
                         resolve({
                             errCode: 0,
                             errMessage: 'OK'
                         })
                     }
                 }
-            } catch(e) {
+            } catch (e) {
                 reject(e)
             }
         })
@@ -166,7 +158,7 @@ module.exports = {
         return new Promise(async (resolve, reject) => {
             try {
                 const user = await db.User.findOne({
-                    where: { id: userId}
+                    where: { id: userId }
                 })
                 if (!user) {
                     resolve({
@@ -183,21 +175,21 @@ module.exports = {
                         errMessage: 'The user is deleted'
                     })
                 }
-            } catch(e) {
+            } catch (e) {
                 reject(e)
             }
         })
     },
     updateUserService: (data, id) => {
         return new Promise(async (resolve, reject) => {
-            await db.User.update(data ,{
+            await db.User.update(data, {
                 where: { id }
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
-    handleLoginService: (email, password) => {
+    loginWebService: (email, password) => {
         return new Promise(async (resolve, reject) => {
             try {
                 const userData = {}
@@ -212,7 +204,7 @@ module.exports = {
                     nest: true
                 })
                 if (user) {
-                    let check = await bcrypt.compareSync(password, user.password)    
+                    let check = await bcrypt.compareSync(password, user.password)
                     if (check) {
                         userData.errCode = 0
                         userData.errMessage = 'OK'
@@ -223,19 +215,19 @@ module.exports = {
                             user.isAdmin = false
                         }
                         delete user['password']
-                        userData.data = user                 
+                        userData.data = user
                     }
                     else {
                         userData.errCode = 1
                         userData.errMessage = 'Wrong password'
                     }
                 }
-                else {                
+                else {
                     userData.errCode = 1,
-                    userData.errMessage = `Your's Email isn't exist in your system`
+                        userData.errMessage = `Your's Email isn't exist in your system`
                 }
                 resolve(userData)
-            } catch(e) {
+            } catch (e) {
                 reject(e)
             }
         })
@@ -268,28 +260,12 @@ module.exports = {
     },
     addDateTokeService: (token, id) => {
         return new Promise(async (resolve, reject) => {
-            try {
-                const user = await db.User.findOne({
-                    where: { id: id },
-                    raw: false,
-                })
-                if (user) {
-                    user.token = token
-                    await user.save()
-                    resolve({
-                        errCode: 0,
-                        data: 'Successfully updated user token'
-                    })
-                }
-                else {
-                    resolve({
-                        errCode: 2,
-                        errMessage: 'User is not exists'
-                    })
-                }
-            } catch (e) {
-                reject(e)
-            }
+            db.User.update({ token }, {
+                where: { id }
+            })
+                .then(resolve)
+                .catch(reject)
+
         })
     },
     getAllAddressService: () => {
@@ -298,10 +274,10 @@ module.exports = {
                 const pathToFile = './src/API/address.json';
                 fs.readFile(pathToFile, 'utf8', (err, data) => {
                     if (err) {
-                      console.error('Error reading file:', err);
-                      reject(err)
+                        console.error('Error reading file:', err);
+                        reject(err)
                     }
-                  
+
                     const jsonData = JSON.parse(data);
                     resolve({
                         errCode: 0,
@@ -317,7 +293,7 @@ module.exports = {
         return new Promise(async (resolve, reject) => {
             await db.User.findOne({
                 where: {
-                    id : id
+                    id: id
                 },
                 attributes: {
                     exclude: ['password']
@@ -325,14 +301,14 @@ module.exports = {
                 include: [
                     {
                         model: db.Role, as: 'dataRole',
-                        attributes: ['id' ,'name']
+                        attributes: ['id', 'name']
                     }
                 ],
                 raw: false,
                 nest: true
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getLimitUserService: (page) => {
@@ -360,33 +336,50 @@ module.exports = {
             }
         })
     },
-    verifyOtpService: async ({otp, email}) => {
-        try {
-            const otpHolder = await Otp.find({
+    findEmailOtp: (email) => {
+        return new Promise((resolve, reject) => {
+            Otp.find({
                 email
             })
-            if (!otpHolder.length) {
-                return {
-                    errCode: 1,
-                    errMessage: 'Mã xác thực đã hiệu lực hết hạn'
-                }
-            }
+                .then(resolve)
+                .catch(reject)
+        })
+    },
+    deleteOtp: (email) => {
+        return new Promise((resolve, reject) => {
+            Otp.deleteMany({ email })
+                .then(resolve)
+                .catch(reject)
+        })
+    },
+    verifyOtpService: async ({ otp, email }) => {
+        try {
+            // const otpHolder = await Otp.find({
+            //     email
+            // })
+            // if (!otpHolder.length) {
+            //     return {
+            //         errCode: 1,
+            //         errMessage: 'Mã xác thực đã hiệu lực hết hạn'
+            //     }
+            // }
+
             // get last otp
-            const lastOtp = otpHolder[otpHolder.length - 1]
-            const isValid = await validOTPService({ otp, hashOtp: lastOtp.otp })
-            if (!isValid) {
-                return{
-                    errCode: 1,
-                    errMessage: 'Mã xác thực không chính xác'
-                }
-            }
-            if (isValid && email === lastOtp.email) {
-                await Otp.deleteMany({ email })
-                return {
-                    errCode: 0,
-                    data: email
-                }
-            }
+            // const lastOtp = otpHolder[otpHolder.length - 1]
+            // const isValid = await validOTPService({ otp, hashOtp: lastOtp.otp })
+            // if (!isValid) {
+            //     return {
+            //         errCode: 1,
+            //         errMessage: 'Mã xác thực không chính xác'
+            //     }
+            // }
+            // if (isValid && email === lastOtp.email) {
+            //     await Otp.deleteMany({ email })
+            //     return {
+            //         errCode: 0,
+            //         data: email
+            //     }
+            // }
         } catch (e) {
             console.log('verifyOtpService error: ', e)
             return (e)
@@ -402,7 +395,7 @@ module.exports = {
                 specialChars: false
             })
             const infor = await createOTPService({ email, otp })
-            const data = await sendEmail({email, otp})
+            const data = await sendEmail({ email, otp })
             if (!data) {
                 otp = ''
             }
@@ -412,56 +405,31 @@ module.exports = {
             })
         })
     },
-    registerSevice: (data) => {
+    register: (data) => {
         return new Promise(async (resolve, reject) => {
-            try {
-                if (data.password) {
-                    const hashPasswordBcrypt = await hasUserPassword(password)
-                    data.password = hashPasswordBcrypt
-                }
-                const user = await db.User.create(data)
-                if (user) {
-                    resolve({
-                        errCode: 0,
-                        errMessage: 'Tạo tài khoản thành công',
-                        user
-                    })
-                }
-            } catch (e) {
-                reject(e)
-            }
+            db.User.create(data)
+                .then(resolve)
+                .catch(reject)
         })
     },
-    resetPasswordService: (data) => {
+    getPasswordById: (id) => {
+        return new Promise((resolve, reject) => {
+            db.User.findOne({
+                where: id,
+                attributes: ['password'],
+                raw: true
+            })
+                .then(resolve)
+                .catch(reject)
+        })
+    },
+    changePassword: ({ id, password }) => {
         return new Promise(async (resolve, reject) => {
-            try {
-                const user = await db.User.findOne({
-                    where: { id: data.id },
-                    raw: false
-                })
-                if (user) {
-                    let check = await bcrypt.compareSync(data.oldPassword, user.password)
-                    if (check) {
-                        let hashPasswordBcrypt = await hasUserPassword(data.newPassword)
-                        user.set({
-                            password: hashPasswordBcrypt
-                        })
-                        await user.save()
-                        resolve({
-                            errCode: 0,
-                            errMessage: 'Reset pasword the success'
-                        })
-                    }
-                    else {
-                        resolve({
-                            errCode: 2,
-                            errMessage: 'Mật khẩu cũ chưa chính xác'
-                        })
-                    }
-                }
-            } catch (e) {
-                reject(e)
-            }
+            db.User.update({ password }, {
+                where: { id }
+            })
+                .then(resolve)
+                .catch(reject)
         })
     },
     getCountUsersService: (data) => {
@@ -481,8 +449,8 @@ module.exports = {
             }
         })
     },
-    updateRefreshRokenService: ({id, token}) => {
-        return new Promise(async(resolve, reject) => {
+    updateRefreshRokenService: ({ id, token }) => {
+        return new Promise(async (resolve, reject) => {
             try {
                 await db.User.update({ token }, {
                     where: { id }
@@ -495,4 +463,15 @@ module.exports = {
             }
         })
     },
+    updateName: ({ id, firstName, lastName }) => {
+        return new Promise((resolve, reject) => {
+            db.User.update({ firstName, lastName }, {
+                where: {
+                    id
+                }
+            })
+                .then(resolve)
+                .catch(reject)
+        })
+    }
 }

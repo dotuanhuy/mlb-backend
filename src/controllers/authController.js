@@ -1,126 +1,108 @@
 const { verifyRefreshToken, signAccessToken, signRefreshToken } = require('../config/jwt')
 const userService = require('../services/userService')
-
-const handleRefreshToken = async (req, res) => {
-    try {
-        const refreshToken = req.cookies.token
-        if (!refreshToken) {
-            return res.status(200).json({
-                errCode: 1,
-                errMessage: 'Refresh token is missing'
-            })
-        }
-        const { id, roleId, firstName, lastName, email } = await verifyRefreshToken(refreshToken)
-        const accessToken = await signAccessToken({id, roleId, firstName, lastName, email})
-        const refToken = await signRefreshToken({id, roleId, firstName, lastName, email})
-
-        await res.clearCookie('token')
-        await res.cookie('token', refToken, {
-            httpOnly: true,
-            path: '/',
-            sameSite: 'strict', // Ngăn chặn tất công CSRT,
-            secure: false,
-            expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
-        })
-
-        return res.status(200).json({
-            errCode: 0,
-            accessToken
-        })
-    } catch (e) {
-        console.log(e)
-        return res.status(200).json({
-            errCode: -1,
-            errMessage: 'Error from server'
-        })
-    }
-}
-
-// const getRefreshToken = async (req, res, next) => {
-//     try {
-//         const {refreshToken} = req.body
-//         if (!refreshToken) {
-//             return res.status(200).json({
-//                 errCode: 1,
-//                 errMessage: 'Refresh token is missing'
-//             })
-//         }
-//         const { id, roleId, firstName, lastName, email } = await verifyRefreshToken(refreshToken)
-//         const accessToken = await signAccessToken({id, roleId, firstName, lastName, email})
-//         const refToken = await signRefreshToken({id, roleId, firstName, lastName, email})
-//         return res.status(200).json({
-//             errCode: 0,
-//             accessToken
-//         })
-//     } catch (e) {
-//         console.log(e)
-//         return res.status(200).json({
-//             errCode: -1,
-//             errMessage: 'Error from server'
-//         })
-//     }
-// }
-
-const authentication =  (req, res) => {
-    const {roleId} = req?.user
-    if (!roleId) {
-        return res.json({
-            errCode: 1,
-            errMessage: 'Invalid user'
-        })
-    }
-    else {
-        if (roleId === +process.env.ADMIN_ROLE) {
-            return res.status(200).json({
-                errCode: 0,
-                isAdmin: 1
-            })                
-        }
-        return res.status(200).json({
-            errCode: 0,
-            isAdmin: 0
-        })
-    }
-}
+const authService = require('../services/authService')
+const bcrypt = require('bcrypt')
+const salt = bcrypt.genSaltSync(10)
 
 module.exports = {
-    handleRefreshToken,
-    // getRefreshToken,
-    authentication,
-    handleLogin: async (req, res) => {
+    handleRefreshToken: async (req, res) => {
         try {
-            let email = req.body.email
-            let password = req.body.password
-            if (!email || !password) {
+            const refreshToken = req.cookies.token
+            if (!refreshToken) {
                 return res.status(200).json({
                     errCode: 1,
+                    errMessage: 'Refresh token is missing'
+                })
+            }
+            const { id, roleId, firstName, lastName, email } = await verifyRefreshToken(refreshToken)
+            const accessToken = await signAccessToken({ id, roleId, firstName, lastName, email })
+            const refToken = await signRefreshToken({ id, roleId, firstName, lastName, email })
+
+            await res.clearCookie('token')
+            await res.cookie('token', refToken, {
+                httpOnly: true,
+                path: '/',
+                sameSite: 'strict', // Ngăn chặn tất công CSRT,
+                secure: false,
+                expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+            })
+
+            return res.status(200).json({
+                errCode: 0,
+                accessToken
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(200).json({
+                errCode: -1,
+                errMessage: 'Error from server'
+            })
+        }
+    },
+    // getRefreshToken,
+    authentication: (req, res) => {
+        const { roleId } = req?.user
+        if (!roleId) {
+            return res.json({
+                errCode: 1,
+                errMessage: 'Invalid user'
+            })
+        }
+        else {
+            if (roleId === +process.env.ADMIN_ROLE) {
+                return res.status(200).json({
+                    errCode: 0,
+                    isAdmin: 1
+                })
+            }
+            return res.status(200).json({
+                errCode: 0,
+                isAdmin: 0
+            })
+        }
+    },
+    loginWeb: async (req, res) => {
+        try {
+            const { email, password } = req.body
+            if (!email || !password) {
+                return res.status(400).json({
                     errMessage: 'Missing required parameters'
                 })
             }
-            let user = await userService.handleLoginService(email, password) 
-            if (user.errCode === 0) {
-                const accessToken = await signAccessToken(user.data)
-                const refreshToken = await signRefreshToken(user.data)
-                let data = await userService.addDateTokeService(refreshToken, user.data.id)    // Thêm token khi đăng nhập thành công
-                if (data.errCode !== 0) {
-                    return res.status(200).json({
-                        errCode: -1,
-                        errMessage: 'Error from the server'
-                    })
-                }
-                user = {
-                    ...user,
-                    accessToken,
-                }
-                await res.cookie('token', refreshToken, {
-                    httpOnly: true,
-                    path: '/',
-                    sameSite: 'strict', // Ngăn chặn tất công CSRT,
-                    secure: false,
-                    expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+            const user = await authService.isUserWeb(email)
+            if (!user) {
+                return res.status(400).json({
+                    errMessage: 'Người dùng không tồn tại trong hệ thống'
                 })
             }
-            return res.status(200).json(user)
+            const comparePassword = await bcrypt.compareSync(password, user.password)
+            if (!comparePassword) {
+                return res.status(400).json({
+                    errMessage: 'Mật khẩu không đúng. Vui lòng nhập lại!'
+                })
+            }
+            const accessToken = await signAccessToken(user)
+            const refreshToken = await signRefreshToken(user)
+            const info = await userService.addDateTokeService(refreshToken, user.id)    // Thêm token khi đăng nhập thành công
+            if (!info) {
+                return res.status(200).json({
+                    errCode: -1,
+                    errMessage: 'Error from the server'
+                })
+            }
+            delete user['password']
+            user.accessToken = accessToken
+            await res.cookie('token', refreshToken, {
+                httpOnly: true,
+                path: '/',
+                sameSite: 'strict', // Ngăn chặn tất công CSRT,
+                secure: false,
+                expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+            })
+            return res.status(200).json({
+                errCode: 0,
+                data: user
+            })
         } catch (e) {
             console.log(e)
             return res.status(200).json({
@@ -129,17 +111,17 @@ module.exports = {
             })
         }
     },
-    handleLoginDifferently: async (req, res) => {
+    loginWebDifferently: async (req, res) => {
         try {
             const profile = req?.user
-            const {user} = await userService.findUserByEmailService(profile?.emails[0]?.value)
+            const { user } = await userService.findUserByEmailService(profile?.emails[0]?.value)
             let token = ''
             let id = ''
             if (!user) {
                 const data = await userService.registerSevice({
-                    email: profile?.emails[0]?.value, 
-                    firstName: profile?.name?.givenName, 
-                    lastName: profile?.name?.familyName, 
+                    email: profile?.emails[0]?.value,
+                    firstName: profile?.name?.givenName,
+                    lastName: profile?.name?.familyName,
                     avatar: profile?.photos[0]?.value,
                     typeLogin: profile?.provider,
                     roleId: process.env.USER_ROLE,
@@ -147,9 +129,9 @@ module.exports = {
                 const userDB = data.user
                 id = userDB.id
                 token = await signRefreshToken({
-                    id: userDB.id, 
-                    roleId: userDB.roleId, 
-                    firstName: userDB.firstName, 
+                    id: userDB.id,
+                    roleId: userDB.roleId,
+                    firstName: userDB.firstName,
                     lastName: userDB.lastName,
                     email: userDB.email
                 })
@@ -158,9 +140,9 @@ module.exports = {
             else {
                 id = user.id
                 token = await signRefreshToken({
-                    id: user.id, 
-                    roleId: user.roleId, 
-                    firstName: user.firstName, 
+                    id: user.id,
+                    roleId: user.roleId,
+                    firstName: user.firstName,
                     lastName: user.lastName,
                     email: user.email
                 })
@@ -175,7 +157,7 @@ module.exports = {
             })
         }
     },
-    handleLoginDifferentlySuccess: async (req, res) => {
+    loginWebDifferentlySuccess: async (req, res) => {
         try {
             let { id, token } = req?.body
             if (!id || !token) {
@@ -188,7 +170,7 @@ module.exports = {
             if (infor.errCode !== 0) {
                 return res.status(200).json(infor)
             }
-    
+
             const accessToken = await signAccessToken(infor.data)
             await res.cookie('token', infor?.data?.token, {
                 httpOnly: true,
@@ -227,5 +209,34 @@ module.exports = {
                 errMessage: 'Error from the server'
             })
         }
-    }
+    },
+    forgotPassword: async (req, res) => {
+        try {
+            const { email, password } = req.body
+            if (!email || !password) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Missing required parameters'
+                })
+            }
+            const hashPassowrd = await bcrypt.hashSync(password, salt)
+            const info = await authService.forgotPassword({ email, password: hashPassowrd })
+            if (!info) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Lấy lại mật khẩu thất bại. Vui lòng thử lại'
+                })
+            }
+            return res.status(200).json({
+                errCode: 0,
+                errMessage: 'Lấy lại mật khẩu thành công'
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                errCode: -1,
+                errMessage: 'Error from the server'
+            })
+        }
+    },
 }

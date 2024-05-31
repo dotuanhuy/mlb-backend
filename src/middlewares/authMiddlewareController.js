@@ -1,7 +1,4 @@
-const jwt = require('jsonwebtoken')
-
 module.exports = {
-    // verifyToken,
     verifyTokenAdmin: (req, res, next) => {
         try {
             if (req?.user) {
@@ -24,7 +21,7 @@ module.exports = {
         } catch (e) {
             console.log(e)
             return res.status(200).json({
-                errCode: -1, 
+                errCode: -1,
                 errMessage: 'Error from server'
             })
         }

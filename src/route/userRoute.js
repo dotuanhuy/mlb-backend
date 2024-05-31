@@ -2,7 +2,7 @@ const express = require('express')
 const userController = require('../controllers/userController')
 const roleController = require('../controllers/roleController')
 const authMiddlewareController = require('../middlewares/authMiddlewareController')
-const {verifyAccessToken} = require('../middlewares/verifyAccessTokenMiddleware')
+const { verifyAccessToken } = require('../middlewares/verifyAccessTokenMiddleware')
 
 const userRoute = express.Router()
 
@@ -30,5 +30,7 @@ userRoute.get('/get/id', verifyAccessToken, authMiddlewareController.verifyToken
 userRoute.get('/count', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, userController.getCountUsers)
 // GET: /api/v1/user/roles
 userRoute.get('/roles', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, roleController.getAllRoles)
+// POST: /api/v1/user/update/name/:id
+userRoute.post('/update/name', verifyAccessToken, userController.updateName)
 
 module.exports = userRoute
