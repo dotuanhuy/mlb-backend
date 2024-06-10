@@ -26,7 +26,7 @@ let getCartsByUser = async (req, res) => {
 
 let addProductToCart = async (req, res) => {
     try {
-        const {productId, userId, quantity} = req?.body?.data
+        const { productId, userId, quantity } = req?.body?.data
         if (!productId || !userId || !quantity) {
             return res.status(200).json({
                 errCode: 1,
@@ -50,7 +50,7 @@ let addProductToCart = async (req, res) => {
 
 let deleteCart = async (req, res) => {
     try {
-        const {cartDetailId} = req?.body?.data
+        const { cartDetailId } = req?.body?.data
         if (!cartDetailId) {
             return res.status(200).json({
                 errCode: 1,
@@ -70,14 +70,14 @@ let deleteCart = async (req, res) => {
 
 let changeCart = async (req, res) => {
     try {
-        const {cartDetailId, typeStep} = req?.body?.data
+        const { cartDetailId, typeStep } = req?.body?.data
         if (!cartDetailId || !typeStep) {
             return res.status(200).json({
                 errCode: 1,
                 errMessage: 'Missing required parameters'
             })
         }
-        let data = await cartService.changeCartService({cartDetailId, typeStep})
+        let data = await cartService.changeCartService({ cartDetailId, typeStep })
         return res.status(200).json(data)
     } catch (e) {
         console.log(e)

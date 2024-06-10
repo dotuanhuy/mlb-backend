@@ -3,6 +3,8 @@ const userService = require('../services/userService')
 const authService = require('../services/authService')
 const bcrypt = require('bcrypt')
 const salt = bcrypt.genSaltSync(10)
+const { AES } = require('crypto-js')
+
 
 module.exports = {
     handleRefreshToken: async (req, res) => {
@@ -26,7 +28,6 @@ module.exports = {
                 secure: false,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
-
             return res.status(200).json({
                 errCode: 0,
                 accessToken
@@ -92,8 +93,29 @@ module.exports = {
             }
             delete user['password']
             user.accessToken = accessToken
+            // Tạo refresh token
             await res.cookie('token', refreshToken, {
                 httpOnly: true,
+                path: '/',
+                sameSite: 'strict', // Ngăn chặn tất công CSRT,
+                secure: false,
+                expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+            })
+            const { firstName, lastName, phone, gender, avatar, birthDate, address } = user
+            // Tạo cookie my infor
+            const jsonInfo = JSON.stringify({
+                firstName,
+                lastName,
+                email,
+                phone,
+                gender,
+                avatar,
+                birthDate,
+                address
+            })
+            const encrypted = AES.encrypt(jsonInfo, process.env.KEY_AES).toString()
+            await res.cookie('info', encrypted, {
+                httpOnly: false,
                 path: '/',
                 sameSite: 'strict', // Ngăn chặn tất công CSRT,
                 secure: false,
@@ -114,7 +136,7 @@ module.exports = {
     loginWebDifferently: async (req, res) => {
         try {
             const profile = req?.user
-            const { user } = await userService.findUserByEmailService(profile?.emails[0]?.value)
+            const user = await userService.findUserByEmailService(profile?.emails[0]?.value)
             let token = ''
             let id = ''
             if (!user) {
@@ -194,6 +216,7 @@ module.exports = {
     handleLogout: async (req, res) => {
         try {
             await res.clearCookie('token')
+            await res.clearCookie('info')
             if (req?.user) {
                 let data = await userService.handleLogoutService(req?.user.id)
                 return res.status(200).json(data)

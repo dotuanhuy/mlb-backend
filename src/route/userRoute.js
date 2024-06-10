@@ -30,7 +30,9 @@ userRoute.get('/get/id', verifyAccessToken, authMiddlewareController.verifyToken
 userRoute.get('/count', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, userController.getCountUsers)
 // GET: /api/v1/user/roles
 userRoute.get('/roles', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, roleController.getAllRoles)
-// POST: /api/v1/user/update/name/:id
-userRoute.post('/update/name', verifyAccessToken, userController.updateName)
+// POST: /api/v1/user/update/info
+userRoute.post('/update/info', verifyAccessToken, userController.updateInfo)
+// GET: /api/v1/user/name
+userRoute.get('/name', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, userController.findUserByName)
 
 module.exports = userRoute

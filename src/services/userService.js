@@ -6,7 +6,8 @@ const fs = require('fs');
 const OptGeneration = require('otp-generator')
 const { createOTPService, validOTPService } = require('./otpService')
 const Otp = require('../models/mongodb/otp');
-const { sendEmail } = require('./nodemailerService')
+const { sendEmail } = require('./nodemailerService');
+const { rejects } = require('assert');
 
 
 module.exports = {
@@ -39,36 +40,22 @@ module.exports = {
         })
     },
     findUserByEmailService: (email) => {
-        return new Promise(async (resolve, resject) => {
-            try {
-                const user = await db.User.findOne({
-                    where: { email },
-                    attributes: {
-                        exclude: ['password']
-                    },
-                    include: [
-                        {
-                            model: db.Role, as: 'dataRole'
-                        }
-                    ],
-                    raw: true,
-                    nest: true
-                })
-                if (user) {
-                    resolve({
-                        errCode: 0,
-                        user
-                    })
-                }
-                else {
-                    resolve({
-                        errCode: 1,
-                        errMessage: 'User is not exist'
-                    })
-                }
-            } catch (e) {
-                resject(e)
-            }
+        return new Promise(async (resolve, reject) => {
+            db.User.findOne({
+                where: { email },
+                attributes: {
+                    exclude: ['password']
+                },
+                include: [
+                    {
+                        model: db.Role, as: 'dataRole'
+                    }
+                ],
+                raw: true,
+                nest: true
+            })
+                .then(resolve)
+                .catch(reject)
         })
     },
     findUserByIdAndTokenService: ({ id, token }) => {
@@ -352,39 +339,6 @@ module.exports = {
                 .catch(reject)
         })
     },
-    verifyOtpService: async ({ otp, email }) => {
-        try {
-            // const otpHolder = await Otp.find({
-            //     email
-            // })
-            // if (!otpHolder.length) {
-            //     return {
-            //         errCode: 1,
-            //         errMessage: 'Mã xác thực đã hiệu lực hết hạn'
-            //     }
-            // }
-
-            // get last otp
-            // const lastOtp = otpHolder[otpHolder.length - 1]
-            // const isValid = await validOTPService({ otp, hashOtp: lastOtp.otp })
-            // if (!isValid) {
-            //     return {
-            //         errCode: 1,
-            //         errMessage: 'Mã xác thực không chính xác'
-            //     }
-            // }
-            // if (isValid && email === lastOtp.email) {
-            //     await Otp.deleteMany({ email })
-            //     return {
-            //         errCode: 0,
-            //         data: email
-            //     }
-            // }
-        } catch (e) {
-            console.log('verifyOtpService error: ', e)
-            return (e)
-        }
-    },
     sendMailService: (email) => {
         return new Promise(async (resolve, reject) => {
             // otp random 6 ký tự số
@@ -463,11 +417,33 @@ module.exports = {
             }
         })
     },
-    updateName: ({ id, firstName, lastName }) => {
+    updateInfor: ({ id, firstName, lastName, birthDate, phone, gender, address }) => {
         return new Promise((resolve, reject) => {
-            db.User.update({ firstName, lastName }, {
+            db.User.update({ firstName, lastName, birthDate, phone, gender, address }, {
                 where: {
                     id
+                }
+            })
+                .then(resolve)
+                .catch(reject)
+        })
+    },
+    findUserByName: (userName) => {
+        return new Promise((resolve, reject) => {
+            db.User.findAll({
+                where: {
+                    [Sequelize.Op.or]: [
+                        {
+                            firstName: {
+                                [Sequelize.Op.substring]: userName
+                            },
+                        },
+                        {
+                            lastName: {
+                                [Sequelize.Op.substring]: userName
+                            }
+                        }
+                    ]
                 }
             })
                 .then(resolve)

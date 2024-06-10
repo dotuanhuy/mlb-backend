@@ -1,8 +1,9 @@
 const userService = require('../services/userService')
-const otpService = require('../services/otpService')
-const { signAccessToken, signRefreshToken } = require('../config/jwt')
 const bcrypt = require('bcrypt')
 const salt = bcrypt.genSaltSync(10)
+const { signAccessToken, signRefreshToken } = require('../config/jwt')
+const { AES } = require('crypto-js')
+const moment = require('moment')
 
 module.exports = {
     getAllUsers: async (req, res) => {
@@ -182,8 +183,6 @@ module.exports = {
                 errCode: 1,
                 errMessage: 'Xác thực thất bại. Vui lòng thử lại'
             })
-            // const data = await userService.verifyOtpService({ otp, email })
-            // console.log(data);
         } catch (e) {
             console.log(e)
             return res.status(500).json({
@@ -320,11 +319,18 @@ module.exports = {
             })
         }
     },
-    updateName: async (req, res) => {
+    updateInfo: async (req, res) => {
         try {
             const { id, roleId, email } = req.user
-            const { firstName, lastName } = req.body
-            const user = await userService.updateName({ id, firstName, lastName })
+            const { firstName, lastName, birthDate, phone, gender, address } = req.body
+            const infoUser = await userService.getUserByIdService(id)
+            if (!id) {
+                return res.status(400).json({
+                    errCode: 0,
+                    errMessage: 'Người dùng không tồn tại',
+                })
+            }
+            const user = await userService.updateInfor({ id, firstName, lastName, birthDate: moment(birthDate, 'DD/MM/YYYY').format('YYYY-MM-DD'), phone, gender, address })
             if (user) {
                 const accessToken = await signAccessToken({ id, roleId, firstName, lastName, email })
                 const refToken = await signRefreshToken({ id, roleId, firstName, lastName, email })
@@ -336,15 +342,56 @@ module.exports = {
                     secure: false,
                     expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
                 })
+                const jsonInfo = JSON.stringify({
+                    firstName,
+                    lastName,
+                    email,
+                    phone,
+                    gender,
+                    avatar: infoUser.avatar,
+                    birthDate,
+                    address,
+                })
+                const encrypted = AES.encrypt(jsonInfo, process.env.KEY_AES).toString()
+                await res.clearCookie('info')
+                await res.cookie('info', encrypted, {
+                    httpOnly: false,
+                    path: '/',
+                    sameSite: 'strict', // Ngăn chặn tất công CSRT,
+                    secure: false,
+                    expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+                })
                 return res.status(200).json({
                     errCode: 0,
-                    errMessage: 'Sửa tên thành công',
+                    errMessage: 'Sửa thông tin thành công',
                     accessToken
                 })
             }
-            return res.status(200).json({
+            return res.status(400).json({
                 errCode: 1,
-                errMessage: 'Sửa tên thất bại'
+                errMessage: 'Sửa thông tin thất bại'
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                errCode: -1,
+                errMessage: 'Error the from server'
+            })
+        }
+    },
+    findUserByName: async (req, res) => {
+        try {
+            const { userName } = req.query
+            if (!userName) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Missing requied parameters'
+                })
+            }
+            const users = await userService.findUserByName(userName)
+            return res.status(200).json({
+                errCode: 0,
+                data: users
             })
         } catch (e) {
             console.log(e)
@@ -353,5 +400,5 @@ module.exports = {
                 errMessage: 'Error the from server'
             })
         }
-    }
+    },
 }
