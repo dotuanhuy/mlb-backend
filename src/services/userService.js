@@ -98,76 +98,25 @@ module.exports = {
                 .catch(resject)
         })
     },
-    createNewUserService: (data) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let check = await checkEmail(data.email)
-                if (check) {
-                    resolve({
-                        errCode: 1,
-                        errMessage: 'Email already exists'
-                    })
-                }
-                else {
-                    if (!data.firstName || !data.lastName || !data.phone || !data.password) {
-                        resolve({
-                            errCode: 2,
-                            errMessage: 'Missing required parameters in service'
-                        })
-                    }
-                    else {
-                        const hashPasswordBcrypt = await hasUserPassword(data.password)
-                        await db.User.create({
-                            email: data.email,
-                            password: hashPasswordBcrypt,
-                            firstName: data.firstName,
-                            lastName: data.lastName,
-                            phone: data.phone,
-                            address: data.address,
-                            gender: data.gender,
-                            roleId: data.roleId,
-                            avatar: data.avatar
-                        })
-                        resolve({
-                            errCode: 0,
-                            errMessage: 'OK'
-                        })
-                    }
-                }
-            } catch (e) {
-                reject(e)
-            }
+    createNewUserService: (newUser) => {
+        return new Promise((resolve, reject) => {
+            db.User.create(newUser)
+                .then(resolve)
+                .catch(reject)
         })
     },
     deleteUserService: (userId) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const user = await db.User.findOne({
-                    where: { id: userId }
-                })
-                if (!user) {
-                    resolve({
-                        errCode: 2,
-                        errMessage: 'User is not exists'
-                    })
-                }
-                else {
-                    await db.User.destroy({
-                        where: { id: userId }
-                    })
-                    resolve({
-                        errCode: 0,
-                        errMessage: 'The user is deleted'
-                    })
-                }
-            } catch (e) {
-                reject(e)
-            }
+        return new Promise((resolve, reject) => {
+            db.User.destroy({
+                where: { id: userId }
+            })
+                .then(resolve)
+                .catch(reject)
         })
     },
-    updateUserService: (data, id) => {
+    updateUserService: (newUser, id) => {
         return new Promise(async (resolve, reject) => {
-            await db.User.update(data, {
+            await db.User.update(newUser, {
                 where: { id }
             })
                 .then(resolve)
@@ -275,8 +224,8 @@ module.exports = {
         })
     },
     getUserByIdService: (id) => {
-        return new Promise(async (resolve, reject) => {
-            await db.User.findOne({
+        return new Promise((resolve, reject) => {
+            db.User.findOne({
                 where: {
                     id: id
                 },

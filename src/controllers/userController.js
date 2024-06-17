@@ -20,17 +20,37 @@ module.exports = {
     },
     createNewUser: async (req, res) => {
         try {
-            if (!req.body) {
-                return res.status(200).json({
+            const { newUser } = req.body
+            if (!newUser) {
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parameters'
                 })
             }
-            const infor = await userService.createNewUserService(req.body)
-            return res.status(200).json(infor)
+            const isEmail = await userService.checkEmail(newUser?.email)
+            if (isEmail) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Email đã tồn tại. Vui lòng sử dụng email khác'
+                })
+            }
+            const hashPassword = await bcrypt.hashSync(newUser?.password, salt)
+            newUser.password = hashPassword
+            newUser.birthDate = moment(newUser.birthDate).format('YYYY-MM-DD')
+            const info = await userService.createNewUserService(newUser)
+            if (!info) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Thêm người dùng thất bại'
+                })
+            }
+            return res.status(200).json({
+                errCode: 0,
+                errMessage: 'Thêm người dùng thành công'
+            })
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
@@ -40,16 +60,32 @@ module.exports = {
         try {
             const { id } = req.query
             if (!id) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parameters'
                 })
             }
-            const infor = await userService.deleteUserService(id)
-            return res.status(200).json(infor)
+            const user = await userService.getUserByIdService(id)
+            if (!user) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Người dùng không tồn tại'
+                })
+            }
+            const info = await userService.deleteUserService(id)
+            if (!info) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Xóa người dùng thất bại'
+                })
+            }
+            return res.status(200).json({
+                errCode: 0,
+                errMessage: 'Xóa người dùng thành công'
+            })
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
@@ -58,36 +94,29 @@ module.exports = {
     updateUser: async (req, res) => {
         try {
             const { id } = req.query
-            const { firstName, lastName, phone, address, gender, roleId } = req?.body
-            if (!firstName || !lastName || !phone || !address || !gender || !roleId || !id) {
-                return res.status(200).json({
+            const { newUser } = req?.body
+            if (!newUser || !id) {
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parameters'
                 })
             }
-            const user = await getUserByIdService(id)
+            const user = await userService.getUserByIdService(id)
             if (!user) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
-                    errMessage: 'User is not exist'
+                    errMessage: 'Người dùng không tồn tại'
                 })
             }
-            const data = {
-                firstName,
-                lastName,
-                phone,
-                address,
-                gender,
-                roleId
+            newUser.birthDate = moment(newUser.birthDate).format('YYYY-MM-DD')
+            const info = await userService.updateUserService(newUser, id)
+            if (!info) {
+                return res.status(400).json({ errCode: 1, errMessage: 'Sửa người dùng thất bại. Vui lòng thử lại' })
             }
-            const infor = await userService.updateUserService(data, id)
-            if (!infor) {
-                return res.status(200).json({ errCode: 1, errMessage: 'Update user failed' })
-            }
-            return res.status(200).json({ errCode: 0, errMessage: 'Update user successfully' })
+            return res.status(200).json({ errCode: 0, errMessage: 'Sửa người dùng thành công' })
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
