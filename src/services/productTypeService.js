@@ -1,7 +1,7 @@
 const db = require('../models/index')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const Op = db.Sequelize.Op
+const { Sequelize } = require('sequelize')
 
 
 module.exports = {
@@ -26,40 +26,28 @@ module.exports = {
                     errCode: 2,
                     errMessage: 'Product type is not exitst'
                 })
-            } catch(e) {
+            } catch (e) {
                 reject(e)
             }
         })
     },
     getLimitProductTypes: (page) => {
         return new Promise(async (resolve, reject) => {
-            try {
-                let productTypes = await db.ProductType.findAndCountAll({
-                    include: [
-                        {
-                            model: db.Category, as: 'dataProductTypeCategory',
-                            attributes: ['id', 'name', 'type']
-                        }
-                    ],
-                    order: [
-                        ['id', 'DESC']
-                    ],
-                    offset: +page * (+process.env.LIMIT_PRODUCT),
-                    limit: +process.env.LIMIT_PRODUCT,
-                })
-                if (productTypes) {
-                    resolve({
-                        errCode: 0,
-                        data: productTypes
-                    })
-                }
-                resolve({
-                    errCode: 2,
-                    errMessage: 'Product type is not exitst'
-                })
-            } catch(e) {
-                reject(e)
-            }
+            db.ProductType.findAndCountAll({
+                include: [
+                    {
+                        model: db.Category, as: 'dataProductTypeCategory',
+                        attributes: ['id', 'name', 'type']
+                    }
+                ],
+                order: [
+                    ['id', 'DESC']
+                ],
+                offset: +page * (+process.env.LIMIT_PRODUCT),
+                limit: +process.env.LIMIT_PRODUCT,
+            })
+                .then(resolve)
+                .catch(reject)
         })
     },
     getProductTypeByCategoryId: (categoryId) => {
@@ -85,7 +73,7 @@ module.exports = {
                     errCode: 2,
                     errMessage: 'Product type is not exitst'
                 })
-            } catch(e) {
+            } catch (e) {
                 reject(e)
             }
         })
@@ -114,7 +102,7 @@ module.exports = {
                     errCode: 2,
                     errMessage: 'Product type is not exitst'
                 })
-            } catch(e) {
+            } catch (e) {
                 reject(e)
             }
         })
@@ -128,19 +116,19 @@ module.exports = {
                 },
                 raw: true
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
-    createProductType: ({name, categoryId, imageRoot}) => {
+    createProductType: ({ name, categoryId, imageRoot }) => {
         return new Promise(async (resolve, reject) => {
             db.ProductType.create({
                 name,
                 categoryId,
                 imageRoot
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     deleteProductTypeById: (id) => {
@@ -155,7 +143,7 @@ module.exports = {
                     errCode: 0,
                     errMessage: 'Delete product type success'
                 })
-            } catch(e) {
+            } catch (e) {
                 reject(e)
             }
         })
@@ -170,9 +158,32 @@ module.exports = {
             }, {
                 where: { id }
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
-    }
-    
+    },
+    getLimitProductTypesByName: (page, name) => {
+        return new Promise(async (resolve, reject) => {
+            db.ProductType.findAndCountAll({
+                where: {
+                    name: {
+                        [Sequelize.Op.substring]: name
+                    }
+                },
+                include: [
+                    {
+                        model: db.Category, as: 'dataProductTypeCategory',
+                        attributes: ['id', 'name', 'type']
+                    }
+                ],
+                order: [
+                    ['id', 'DESC']
+                ],
+                offset: +page * (+process.env.LIMIT_PRODUCT),
+                limit: +process.env.LIMIT_PRODUCT,
+            })
+                .then(resolve)
+                .catch(reject)
+        })
+    },
 }

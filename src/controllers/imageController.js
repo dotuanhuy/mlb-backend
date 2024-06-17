@@ -6,7 +6,7 @@ module.exports = {
         try {
             let data = await imageService.getAllImagesProduc()
             return res.status(200).json(data)
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
@@ -24,7 +24,7 @@ module.exports = {
             }
             let data = await imageService.getAllImagesByProductId(req.query.id)
             return res.status(200).json(data)
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
@@ -34,19 +34,19 @@ module.exports = {
     },
     changeImageProducts: async (req, res) => {
         try {
-            const {productId} = req.query
+            const { productId } = req.query
             const listImages = req?.images
             if (!listImages || listImages.length === 0 || !productId) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
                 })
             }
-            let data = await imageService.createImageProducts({listImages, productId})
+            const data = await imageService.createImageProducts({ listImages, productId })
             return res.status(200).json(data)
-        } catch(e) {
+        } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -54,7 +54,7 @@ module.exports = {
     },
     deleteImageProduct: async (req, res) => {
         try {
-            const {arrId} = req?.body
+            const { arrId } = req?.body
             if (!arrId || arrId.length === 0) {
                 return res.status(200).json({
                     errCode: 1,
@@ -63,7 +63,7 @@ module.exports = {
             }
             let data = await imageService.deleteImage(arrId.split(','))
             return res.status(200).json(data)
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
@@ -73,7 +73,7 @@ module.exports = {
     },
     getImageProductByCategory: async (req, res) => {
         try {
-            const {category} = req?.query
+            const { category } = req?.query
             if (!category) {
                 return res.status(200).json({
                     errCode: 1,
@@ -83,7 +83,7 @@ module.exports = {
             let data = await imageService.getImageProductByCategory(optionCategories.optionCategory(category))
             return res.status(200).json(data)
         } catch (e) {
-            console.log( e)
+            console.log(e)
             return res.status(200).json({
                 errCode: -1,
                 errMessage: 'Error the from server'

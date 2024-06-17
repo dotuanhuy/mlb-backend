@@ -1,7 +1,7 @@
 const express = require('express')
 const productTypeController = require('../controllers/productTypeController')
 const authMiddlewareController = require('../middlewares/authMiddlewareController')
-const {verifyAccessToken} = require('../middlewares/verifyAccessTokenMiddleware')
+const { verifyAccessToken } = require('../middlewares/verifyAccessTokenMiddleware')
 const { upload, uploadMultiple } = require('../middlewares/multer')
 const firebaseController = require('../controllers/firebaseController')
 
@@ -16,7 +16,7 @@ productTypeRoute.get('/categoryId', productTypeController.getProductTypeByCatego
 // GET: /api/v1/producttype/id
 productTypeRoute.get('/id', productTypeController.getProductTypeById)
 // POST: /api/v1/producttype/create
-productTypeRoute.post('/create', 
+productTypeRoute.post('/create',
     verifyAccessToken,
     authMiddlewareController.verifyTokenAdmin,
     upload,
@@ -24,7 +24,7 @@ productTypeRoute.post('/create',
     productTypeController.createProductType
 )
 // DELTE: /api/v1/producttype/delete
-productTypeRoute.delete('/delete', 
+productTypeRoute.delete('/delete',
     verifyAccessToken,
     authMiddlewareController.verifyTokenAdmin,
     productTypeController.getImageProductTypeById,
@@ -32,7 +32,7 @@ productTypeRoute.delete('/delete',
     productTypeController.deleteProductTypeById
 )
 // POST: /api/v1/producttype/update
-productTypeRoute.post('/update', 
+productTypeRoute.post('/update',
     verifyAccessToken,
     authMiddlewareController.verifyTokenAdmin,
     productTypeController.getImageProductTypeById,
@@ -41,5 +41,8 @@ productTypeRoute.post('/update',
     firebaseController.delete,
     productTypeController.updateProductType
 )
+
+// GET: /api/v1/producttype/limit
+productTypeRoute.get('/limit/name', productTypeController.getLimitProductTypesByName)
 
 module.exports = productTypeRoute

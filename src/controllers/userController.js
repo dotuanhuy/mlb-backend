@@ -330,7 +330,7 @@ module.exports = {
                     errMessage: 'Người dùng không tồn tại',
                 })
             }
-            const user = await userService.updateInfor({ id, firstName, lastName, birthDate: moment(birthDate, 'DD/MM/YYYY').format('YYYY-MM-DD'), phone, gender, address })
+            const user = await userService.updateInfor({ id, firstName, lastName, birthDate: moment(birthDate).format('YYYY-MM-DD'), phone, gender, address })
             if (user) {
                 const accessToken = await signAccessToken({ id, roleId, firstName, lastName, email })
                 const refToken = await signRefreshToken({ id, roleId, firstName, lastName, email })
@@ -381,21 +381,21 @@ module.exports = {
     },
     findUserByName: async (req, res) => {
         try {
-            const { userName } = req.query
+            const { userName, page } = req.query
             if (!userName) {
                 return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
                 })
             }
-            const users = await userService.findUserByName(userName)
+            const users = await userService.findUserByName(userName, page)
             return res.status(200).json({
                 errCode: 0,
                 data: users
             })
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })

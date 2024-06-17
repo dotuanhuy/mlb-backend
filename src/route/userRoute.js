@@ -33,6 +33,10 @@ userRoute.get('/roles', verifyAccessToken, authMiddlewareController.verifyTokenA
 // POST: /api/v1/user/update/info
 userRoute.post('/update/info', verifyAccessToken, userController.updateInfo)
 // GET: /api/v1/user/name
-userRoute.get('/name', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, userController.findUserByName)
+userRoute.get('/name',
+    verifyAccessToken,
+    authMiddlewareController.verifyTokenAdmin,
+    userController.findUserByName
+)
 
 module.exports = userRoute

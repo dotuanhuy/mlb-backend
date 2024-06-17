@@ -86,7 +86,7 @@ module.exports = {
             const refreshToken = await signRefreshToken(user)
             const info = await userService.addDateTokeService(refreshToken, user.id)    // Thêm token khi đăng nhập thành công
             if (!info) {
-                return res.status(200).json({
+                return res.status(500).json({
                     errCode: -1,
                     errMessage: 'Error from the server'
                 })
@@ -127,7 +127,7 @@ module.exports = {
             })
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })

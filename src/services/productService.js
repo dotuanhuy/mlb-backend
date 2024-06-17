@@ -1,7 +1,7 @@
 const db = require('../models/index')
 const Op = db.Sequelize.Op
-const {Sequelize} = require('sequelize')
-const optionCategories = require('../utils/optionCategory')
+const { Sequelize } = require('sequelize')
+
 
 module.exports = {
     getAllProductByYear: (year) => {
@@ -13,8 +13,8 @@ module.exports = {
                     }
                 }
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getProductByCode: (code) => {
@@ -22,8 +22,8 @@ module.exports = {
             db.Product.findOne({
                 where: { code }
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     createNewProductService: (data) => {
@@ -45,8 +45,8 @@ module.exports = {
                 gender: data.gender,
                 productTypeId: data.productTypeId
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getAllProductsService: (type) => {
@@ -64,8 +64,8 @@ module.exports = {
                 raw: false,
                 nest: true
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getAllProductPublicService: (categoryDetailId) => {
@@ -118,8 +118,8 @@ module.exports = {
                 raw: false,
                 nest: true
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     deleteProductService: (id) => {
@@ -147,7 +147,7 @@ module.exports = {
                         errMessage: 'The product is deleted'
                     })
                 }
-            } catch(e) {
+            } catch (e) {
                 reject(e)
             }
         })
@@ -235,7 +235,7 @@ module.exports = {
                 discountId: data.discountId,
                 image: data.image,
                 productionSite: data.productionSite,
-                releaseDate: data.releaseDate,  
+                releaseDate: data.releaseDate,
                 brandId: data.brandId,
                 material: data.material,
                 quantity: data.quantity,
@@ -244,40 +244,40 @@ module.exports = {
             }, {
                 where: { id }
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getCountProductsService: () => {
         return new Promise((resolve, reject) => {
             db.Product.count('id')
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getTotalProducts: () => {
         return new Promise((resolve, reject) => {
             db.Product.sum('quantity')
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getTotalProductSold: () => {
         return new Promise((resolve, reject) => {
             db.Product.sum('quantitySold')
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
-    changeImageMainProductService: ({id, image}) => {
+    changeImageMainProductService: ({ id, image }) => {
         return new Promise(async (resolve, reject) => {
             db.Product.update({
                 image
             }, {
                 where: { id }
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getImageProductById: (id) => {
@@ -287,8 +287,8 @@ module.exports = {
                 where: { id },
                 raw: true
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getAllDescriptionProductService: (id) => {
@@ -327,8 +327,8 @@ module.exports = {
                 if (des) {
                     des.contentHTML = data.contentHTML
                     des.contentMarkdown = data.contentMarkdown,
-                    des.productId = data.productId
-    
+                        des.productId = data.productId
+
                     await des.save()
                     resolve({
                         errCode: 0,
@@ -417,55 +417,43 @@ module.exports = {
             }
         })
     },
-    getProductByCategoryLimitService: ({type, offset}) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                let option = optionCategories.optionCategory(type)
-                let products = await db.Product.findAndCountAll({
-                    where: {
-                        categoryDetailId : option
-                    },
-                    include: [
-                        {
-                            model: db.CategoryDetail, as: 'dataCategoryDetail',
-                            attributes: ['name', 'type'],
-                            include: [
-                                {
-                                    model: db.Category, as: 'dataCategory',
-                                    where: {
-                                        type
-                                    }
+    getProductByCategoryLimitService: ({ type, option, offset }) => {
+        return new Promise((resolve, reject) => {
+            db.Product.findAndCountAll({
+                where: {
+                    categoryDetailId: option
+                },
+                include: [
+                    {
+                        model: db.CategoryDetail, as: 'dataCategoryDetail',
+                        attributes: ['name', 'type'],
+                        include: [
+                            {
+                                model: db.Category, as: 'dataCategory',
+                                where: {
+                                    type
                                 }
-                            ]
-                        },
-                        {
-                            model: db.Brand, as: 'dataBrands',
-                        },
-                        {
-                            model: db.Logo, as: 'dataLogos',
-                        }
-                    ],
-                    order: [
-                        ['id', 'DESC']
-                    ],
-                    offset: +offset * (+process.env.LIMIT_PRODUCT),
-                    limit: +process.env.LIMIT_PRODUCT,
-                    raw: true,
-                    nest: true
-                })
-                if (products) {
-                    resolve({
-                        errCode: 0,
-                        data: products
-                    })
-                }
-                resolve({
-                    errCode: 2,
-                    errMessage: 'Product is not exist'
-                })
-            } catch (e) {
-                reject(e)
-            }
+                            }
+                        ]
+                    },
+                    {
+                        model: db.Brand, as: 'dataBrands',
+                    },
+                    {
+                        model: db.Logo, as: 'dataLogos',
+                    }
+                ],
+                order: [
+                    ['id', 'DESC']
+                ],
+                offset: +offset * (+process.env.LIMIT_PRODUCT),
+                limit: +process.env.LIMIT_PRODUCT,
+                raw: true,
+                nest: true
+            })
+                .then(resolve)
+                .catch(reject)
+
         })
     },
     getProductByCategoryDetailLimit: (categoryDetailId, limit) => {
@@ -495,7 +483,7 @@ module.exports = {
                     {
                         model: db.Logo, as: 'dataLogos',
                         attributes: ['id', 'name', 'image'],
-                        
+
                     },
                     {
                         model: db.Brand, as: 'dataBrands',
@@ -513,8 +501,8 @@ module.exports = {
                 ],
                 limit: +limit
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     findlAndCountAllSortNotExistOptionColor: async (optionCategory, page, sortOption, optionLogos, optionTypeName, optionColors, limit) => {
@@ -527,22 +515,22 @@ module.exports = {
                         include: [
                             {
                                 model: db.Logo, as: 'dataLogos',
-                                where: optionLogos.length > 0 ?  {
+                                where: optionLogos.length > 0 ? {
                                     id: optionLogos
                                 } : null
                             },
                             {
                                 model: db.ColorDetail, as: 'dataColorDetail',
-                                where: optionColors.length > 0 ?{
+                                where: optionColors.length > 0 ? {
                                     colorId: optionColors
                                 } : null
                             }
                         ],
                         where: {
-                            categoryDetailId : optionCategory,
+                            categoryDetailId: optionCategory,
                         },
                     })
-    
+
                     products = await db.Product.findAll({
                         attributes: {
                             exclude: ['DiscountId', 'ProductTypeId'],
@@ -565,7 +553,7 @@ module.exports = {
                             {
                                 model: db.Logo, as: 'dataLogos',
                                 attributes: ['id', 'name', 'image'],
-                                where: optionLogos.length > 0 ?  {
+                                where: optionLogos.length > 0 ? {
                                     id: optionLogos
                                 } : null
                             },
@@ -584,13 +572,13 @@ module.exports = {
                             },
                             {
                                 model: db.ColorDetail, as: 'dataColorDetail',
-                                where: optionColors.length > 0 ?{
+                                where: optionColors.length > 0 ? {
                                     colorId: optionColors
                                 } : null
                             }
                         ],
                         where: {
-                            categoryDetailId : optionCategory,
+                            categoryDetailId: optionCategory,
                         },
                         order: sortOption === process.env.SORT_NAME_DEFAULT ? [] : [sortOption],
                         offset: +page * (+limit),
@@ -600,17 +588,17 @@ module.exports = {
                     })
                 }
                 else {
-                    count =  await db.Product.findAll({
+                    count = await db.Product.findAll({
                         include: [
                             {
                                 model: db.Logo, as: 'dataLogos',
-                                where: optionLogos.length > 0 ?  {
+                                where: optionLogos.length > 0 ? {
                                     id: optionLogos
                                 } : null
                             },
                             {
                                 model: db.ColorDetail, as: 'dataColorDetail',
-                                where: optionColors.length > 0 ?{
+                                where: optionColors.length > 0 ? {
                                     colorId: optionColors
                                 } : null
                             },
@@ -622,12 +610,12 @@ module.exports = {
                             }
                         ],
                         where: {
-                            categoryDetailId : optionCategory,
+                            categoryDetailId: optionCategory,
                             // productTypeId: optionTypeName
                         },
                     })
-    
-                    products =  await db.Product.findAll({
+
+                    products = await db.Product.findAll({
                         attributes: {
                             exclude: ['DiscountId', 'ProductTypeId']
                         },
@@ -649,14 +637,14 @@ module.exports = {
                             {
                                 model: db.Logo, as: 'dataLogos',
                                 attributes: ['id', 'name', 'image'],
-                                where: optionLogos.length > 0 ?  {
+                                where: optionLogos.length > 0 ? {
                                     id: optionLogos
                                 } : null
                             },
                             {
                                 model: db.Brand, as: 'dataBrands',
                                 attributes: ['id', 'name'],
-                            },  
+                            },
                             {
                                 model: db.ImageProduct, as: 'dataImageProducts',
                                 attributes: ['image'],
@@ -668,7 +656,7 @@ module.exports = {
                             },
                             {
                                 model: db.ColorDetail, as: 'dataColorDetail',
-                                where: optionColors.length > 0 ?{
+                                where: optionColors.length > 0 ? {
                                     colorId: optionColors
                                 } : null
                             },
@@ -680,7 +668,7 @@ module.exports = {
                             }
                         ],
                         where: {
-                            categoryDetailId : optionCategory,
+                            categoryDetailId: optionCategory,
                             // productTypeId: optionTypeName
                         },
                         order: sortOption === process.env.SORT_NAME_DEFAULT ? [] : [sortOption],
@@ -753,7 +741,7 @@ module.exports = {
                     errCode: 0,
                     data: products
                 })
-            } catch(e) {
+            } catch (e) {
                 reject(e)
             }
         })
@@ -814,31 +802,73 @@ module.exports = {
                     errCode: 0,
                     data: products
                 })
-            } catch(e) {
+            } catch (e) {
                 reject(e)
             }
         })
     },
-    updateQuantity: ({id, quantity}) => {
+    findNameProductByCategory: ({ productName, type, option, offset }) => {
         return new Promise((resolve, reject) => {
-            db.Product.update({
-                quantity    
-            },{
-                where: { id }
+            db.Product.findAndCountAll({
+                where: {
+                    categoryDetailId: option,
+                    name: {
+                        [Sequelize.Op.substring]: productName
+                    },
+                },
+                include: [
+                    {
+                        model: db.CategoryDetail, as: 'dataCategoryDetail',
+                        attributes: ['name', 'type'],
+                        include: [
+                            {
+                                model: db.Category, as: 'dataCategory',
+                                where: {
+                                    type
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        model: db.Brand, as: 'dataBrands',
+                    },
+                    {
+                        model: db.Logo, as: 'dataLogos',
+                    }
+                ],
+                order: [
+                    ['id', 'DESC']
+                ],
+                offset: +offset * (+process.env.LIMIT_PRODUCT),
+                limit: +process.env.LIMIT_PRODUCT,
+                raw: true,
+                nest: true
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
-    updateQuantitySold: ({id, quantitySold}) => {
+
+    updateQuantity: ({ id, quantity }) => {
         return new Promise((resolve, reject) => {
             db.Product.update({
-                quantitySold  
-            },{
+                quantity
+            }, {
                 where: { id }
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
+        })
+    },
+    updateQuantitySold: ({ id, quantitySold }) => {
+        return new Promise((resolve, reject) => {
+            db.Product.update({
+                quantitySold
+            }, {
+                where: { id }
+            })
+                .then(resolve)
+                .catch(reject)
         })
     }
 }

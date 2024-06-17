@@ -16,7 +16,7 @@ module.exports = {
         const storage = getStorage(app1);
         const listRef = ref(storage, '');
         let results = []
-        await listAll(listRef)  
+        await listAll(listRef)
             .then((res) => {
                 const promise = res.items.map(async (itemRef, index) => {
                     let url = await getDownloadURL(itemRef)
@@ -40,15 +40,15 @@ module.exports = {
             });
         return results
     },
-    uploadImage: async(file, quantity) => {
+    uploadImage: async (file, quantity, found) => {
         const app2 = firebase.getApp('app2')
         const storageFB = getStorage(app2);
-    
+
         // await signInWithEmailAndPassword(auth, process.env.FIREBASE_USER, process.env.FIREBASE_AUTH)
-    
+
         if (quantity === 'single') {
             const dateTime = Date.now();
-            const fileName = `images/${dateTime}`
+            const fileName = `${found}/${dateTime}`
             const storageRef = ref(storageFB, fileName)
             const metadata = {
                 contentType: file.type,
@@ -57,12 +57,12 @@ module.exports = {
             const imageUrl = await getDownloadURL(storageRef)
             return imageUrl
         }
-    
+
         if (quantity === 'multiple') {
             const imageUrls = [];
-            for(let i=0; i < file?.images?.length; i++) {
+            for (let i = 0; i < file?.images?.length; i++) {
                 const dateTime = Date.now();
-                const fileName = `images/${dateTime}`
+                const fileName = `${found}/${dateTime}`
                 const storageRef = ref(storageFB, fileName)
                 const metadata = {
                     contentType: file.images[i].mimetype,
@@ -73,7 +73,7 @@ module.exports = {
             }
             return imageUrls
         }
-    
+
     },
     delete: (imageUrl, type) => {
         const app2 = firebase.getApp('app2')
@@ -83,15 +83,15 @@ module.exports = {
             // Delete the a file
             return new Promise((resolve, reject) => {
                 deleteObject(desertRef)
-                .then(() => {
-                    resolve({
-                        errCode: 0,
-                        errMessage: 'Delete image in firebase success'
+                    .then(() => {
+                        resolve({
+                            errCode: 0,
+                            errMessage: 'Delete image in firebase success'
+                        })
                     })
-                })
-                .catch((error) => {
-                    reject(error)
-                });
+                    .catch((error) => {
+                        reject(error)
+                    });
             })
         }
         else if (type === 'multiple') {
@@ -101,9 +101,9 @@ module.exports = {
                     await deleteObject(desertRef)
                 })
             )
-            .catch((error) => {
-                return Promise.reject(error);
-            })
+                .catch((error) => {
+                    return Promise.reject(error);
+                })
             return { errCode: 0 }
         }
     }

@@ -7,8 +7,6 @@ const OptGeneration = require('otp-generator')
 const { createOTPService, validOTPService } = require('./otpService')
 const Otp = require('../models/mongodb/otp');
 const { sendEmail } = require('./nodemailerService');
-const { rejects } = require('assert');
-
 
 module.exports = {
     hasUserPassword: async (password) => {
@@ -428,9 +426,9 @@ module.exports = {
                 .catch(reject)
         })
     },
-    findUserByName: (userName) => {
+    findUserByName: (userName, page) => {
         return new Promise((resolve, reject) => {
-            db.User.findAll({
+            db.User.findAndCountAll({
                 where: {
                     [Sequelize.Op.or]: [
                         {
@@ -444,7 +442,18 @@ module.exports = {
                             }
                         }
                     ]
-                }
+                },
+                attributes: {
+                    exclude: ['password']
+                },
+                include: {
+                    model: db.Role, as: 'dataRole'
+                },
+                order: [['id', 'DESC']],
+                offset: +page * (+process.env.LIMIT_PAGE),
+                limit: +process.env.LIMIT_PAGE,
+                raw: true,
+                nest: true
             })
                 .then(resolve)
                 .catch(reject)

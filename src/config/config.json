@@ -1,9 +1,10 @@
 {
   "development": {
-    "username": "root",
-    "password": "12345",
+    "username": "avnadmin",
+    "password": "AVNS_hiH8rlXvgNNwGU3QJvD",
     "database": "db_mlb",
-    "host": "127.0.0.1",
+    "host": "mlb-db-project-mlb.d.aivencloud.com",
+    "port": "20144",
     "dialect": "mysql",
     "logging": false,
     "timezone": "+07:00"

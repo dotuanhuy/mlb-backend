@@ -8,33 +8,51 @@ module.exports = {
     createNewProduct: async (req, res, next) => {
         try {
             const product = JSON.parse(req?.body?.product)
-            const infor = await productService.getProductByCode(product?.code)
-            if (infor) {
-                return res.status(200).json({
-                    errCode: 1,
-                    errMessage: 'Code is not exist'
-                })
-            } 
             product.image = req.image
             let data = await productService.createNewProductService(product)
             if (!data) {
-                return res.status(200).json('Create product failed')
+                return res.status(400).json('Thêm sản phẩm thất bại')
             }
-            const {listSizesAdded, listColorsAdded} = product
+            const { listSizesAdded, listColorsAdded } = product
             const id = data?.dataValues?.id
             if (listSizesAdded && listSizesAdded.length > 0) {
-                const size = await sizeService.createSizeDetailService({listSizesAdded, id})
+                const size = await sizeService.createSizeDetailService({ listSizesAdded, id })
             }
             if (listColorsAdded && listColorsAdded.length > 0) {
-                const color = await colorService.createColorDetailService({listColorsAdded, id})
+                const color = await colorService.createColorDetailService({ listColorsAdded, id })
             }
             return res.status(200).json({
                 errCode: 0,
-                errMessage: 'Create product success'
+                errMessage: 'Thêm sản phẩm thành công'
             })
-        } catch(e) {
+        } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
+                errCode: -1,
+                errMessage: 'Error from the server'
+            })
+        }
+    },
+    getProductByCode: async (req, res, next) => {
+        try {
+            const product = JSON.parse(req?.body?.product)
+            if (!product?.code) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Missing required parameters'
+                })
+            }
+            const infor = await productService.getProductByCode(product?.code)
+            if (infor) {
+                return res.status(400).json({
+                    errCode: 3,
+                    errMessage: 'Đã có lỗi xảy ra. Vui lòng thêm lại'
+                })
+            }
+            next()
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
@@ -47,13 +65,13 @@ module.exports = {
                     errCode: 1,
                     errMessage: 'Missing required parameters'
                 })
-            }   
+            }
             const data = await productService.getAllProductsService(req.query.type)
             return res.status(200).json({
                 errCode: 0,
                 data
             })
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
@@ -77,7 +95,7 @@ module.exports = {
                 errCode: 0,
                 data
             })
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
@@ -87,20 +105,20 @@ module.exports = {
     },
     deleteProduct: async (req, res) => {
         try {
-            const {id} = req.query
+            const { id } = req.query
             if (!id) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parameters'
                 })
             }
             const size = await sizeService.deleteSizeDetailByProductId(id)
             const color = await colorService.deleteColorDetailByProductId(id)
-            const infor = await productService.deleteProductService(id) 
+            const infor = await productService.deleteProductService(id)
             return res.status(200).json(infor)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
@@ -126,10 +144,10 @@ module.exports = {
     },
     updateProduct: async (req, res, next) => {
         try {
-            const {id} = req?.query
+            const { id } = req?.query
             const product = JSON.parse(req.body.product)
             req.body.product = product
-            const {listSizesDeleted, listSizesAdded, listColorsDeleted, listColorsAdded} = req.body.product
+            const { listSizesDeleted, listSizesAdded, listColorsDeleted, listColorsAdded } = req.body.product
             if (req?.image) {
                 product.image = req.image
             }
@@ -139,35 +157,37 @@ module.exports = {
                     errMessage: 'Missing required parameters'
                 })
             }
-            const data = await productService.updateProductService(product, id) 
+            const data = await productService.updateProductService(product, id)
             if (listSizesDeleted.length > 0) {
-                const resDeleted  = await sizeService.deleteSizeDetailByProductIdService({listSizesDeleted, id})
+                const resDeleted = await sizeService.deleteSizeDetailByProductIdService({ listSizesDeleted, id })
             }
             if (listSizesAdded.length > 0) {
-                const resAdded = await sizeService.createSizeDetailService({listSizesAdded, id})
+                const resAdded = await sizeService.createSizeDetailService({ listSizesAdded, id })
             }
             if (listColorsDeleted.length > 0) {
-                const resDeleted = await colorService.deleteColorDetailByProductIdService({listColorsDeleted, id})
+                const resDeleted = await colorService.deleteColorDetailByProductIdService({ listColorsDeleted, id })
             }
             if (listColorsAdded.length > 0) {
-                const resAdded = await colorService.createColorDetailService({listColorsAdded, id})
+                const resAdded = await colorService.createColorDetailService({ listColorsAdded, id })
             }
+            console.log('check data: ', data);
             return res.status(200).json({
                 errCode: 0,
-                errMessage: 'Update product success'
+                errMessage: 'Sửa sản phẩm thành công'
             })
+
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
-                errCode: -1, 
+            return res.status(500).json({
+                errCode: -1,
                 errMessage: 'Error from the server'
             })
         }
     },
     getCountProducts: async (req, res) => {
         try {
-            const totalProducts = await productService.getTotalProducts() 
-            const totalProductsSold = await productService.getTotalProductSold() 
+            const totalProducts = await productService.getTotalProducts()
+            const totalProductsSold = await productService.getTotalProductSold()
             return res.status(200).json({
                 errCode: 0,
                 data: {
@@ -178,35 +198,35 @@ module.exports = {
         } catch (e) {
             console.log(e)
             return res.status(200).json({
-                errCode: -1, 
+                errCode: -1,
                 errMessage: 'Error from the server'
             })
         }
     },
     changeImageMainProduct: async (req, res) => {
         try {
-            const {id} = req?.query
+            const { id } = req?.query
             const image = req?.image
             if (!id || !image) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parmeters'
                 })
             }
-            let infor = await productService.changeImageMainProductService({id, image})
+            let infor = await productService.changeImageMainProductService({ id, image })
             if (!infor) {
-                return res.status(200).json({
-                    errCode: 2,
-                    errMessage: 'Update image main product failed'
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Thay đổi anh gốc thất bại'
                 })
             }
             return res.status(200).json({
                 errCode: 0,
-                errMessage: 'Update image main product success'
+                errMessage: 'Thay đổi ảnh gốc thành công'
             })
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
@@ -214,25 +234,25 @@ module.exports = {
     },
     getImageProductById: async (req, res, next) => {
         try {
-            const {id} = req.query 
+            const { id } = req.query
             if (!id) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parmeters'
                 })
             }
             const data = await productService.getImageProductById(id)
             if (!data.image) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
-                    errMessage: 'Image is not exist'
+                    errMessage: 'Ảnh không tồn tại'
                 })
             }
             req.imageUrl = data.image
-            next()
+            return next()
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
@@ -288,7 +308,7 @@ module.exports = {
     },
     getProductByCategory: async (req, res) => {
         try {
-            if (!req.query.type){
+            if (!req.query.type) {
                 return res.status(200).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
@@ -306,15 +326,19 @@ module.exports = {
     },
     getProductByCategoryLimit: async (req, res) => {
         try {
-            const {type, offset} = req?.query
-            if (!type || !offset){
+            const { type, offset } = req?.query
+            if (!type || !offset) {
                 return res.status(200).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
                 })
             }
-            let data = await productService.getProductByCategoryLimitService(req.query)
-            return res.status(200).json(data)
+            const option = optionCategories.optionCategory(type)
+            const data = await productService.getProductByCategoryLimitService({ type, option, offset })
+            return res.status(200).json({
+                errCode: 0,
+                data
+            })
         } catch (e) {
             console.log(e)
             return res.status(200).json({
@@ -325,17 +349,17 @@ module.exports = {
     },
     getProductByCategoryDetailLimit: async (req, res) => {
         try {
-            const {id, limit} = req?.query
-            if (!id || !limit){
+            const { id, limit } = req?.query
+            if (!id || !limit) {
                 return res.status(200).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
                 })
             }
-            let data = await productService.getProductByCategoryDetailLimit(id, limit)
+            const data = await productService.getProductByCategoryDetailLimit(id, limit)
             if (!data || data.length === 0) {
-                return res.status(400).json({ errCode: 1, errMessage: 'Product same is not exist'})
-            } 
+                return res.status(400).json({ errCode: 1, errMessage: 'Product same is not exist' })
+            }
             return res.status(200).json({
                 errCode: 0,
                 data
@@ -351,17 +375,17 @@ module.exports = {
     getLimitProductByOption: async (req, res) => {
         try {
             let optionSort = req?.query?.option
-            const {limit, page} = req.query
+            const { limit, page } = req.query
             optionSort = optionSort === process.env.SORT_NAME_BY_AZ ? ['name', 'ASC'] : optionSort
             optionSort = optionSort === process.env.SORT_NAME_BY_ZA ? ['name', 'DESC'] : optionSort
             optionSort = optionSort === process.env.SORT_PRICE_BY_LOW_TO_HIGH ? ['price', 'ASC'] : optionSort
             optionSort = optionSort === process.env.SORT_PRICE_BY_HIGH_TO_LOW ? ['price', 'DESC'] : optionSort
             let optionColors = req?.query?.colors ? req?.query?.colors?.split(',')?.map(item => +item) : []
             let optionLogos = req?.query?.logos ? req?.query?.logos?.split(',')?.map(item => +item) : []
-            let optionCategory = optionCategories.optionCategory(req?.query?.type).length === 0 ? req?.query?.type?.split(',').map(item => +item) : optionCategories.optionCategory(req?.query?.type) 
+            let optionCategory = optionCategories.optionCategory(req?.query?.type).length === 0 ? req?.query?.type?.split(',').map(item => +item) : optionCategories.optionCategory(req?.query?.type)
             let data = []
             data = await productService.findlAndCountAllSortNotExistOptionColor(optionCategory, page, optionSort, optionLogos, req?.query?.optionTypeName, optionColors, limit)
-    
+
             // if (req?.query?.colors) {
             //     data = await productService.findlAndCountAllSortExistOptionColor(optionCategory, req?.query?.page, optionSort, optionColors, optionLogos, req?.query?.optionTypeName)
             // }
@@ -377,18 +401,18 @@ module.exports = {
             })
         }
     },
-    searchProductByName: async (req, res) => { 
+    searchProductByName: async (req, res) => {
         try {
-            let {productName, offset} = req?.query
+            const { productName, offset } = req?.query
             if (!productName || !offset) {
                 return res.status(200).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
                 })
             }
-            let data = await productService.searchProductByNameService(productName, offset)
+            const data = await productService.searchProductByNameService(productName, offset)
             return res.status(200).json(data)
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
@@ -398,22 +422,44 @@ module.exports = {
     },
     searchProductByNameLimit: async (req, res) => {
         try {
-            let {productName, offset} = req.query
+            const { productName, offset } = req.query
             if (!productName || !offset) {
                 return res.status(200).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
                 })
             }
-            let data = await productService.searchProductByNameServiceLimit(productName, offset)
+            const data = await productService.searchProductByNameServiceLimit(productName, offset)
             return res.status(200).json(data)
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
         }
+    },
+    findNameProductByCategory: async (req, res) => {
+        try {
+            const { productName, type, offset } = req.query
+            if (!productName || !type || !offset) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Missing requied parameters'
+                })
+            }
+            const option = optionCategories.optionCategory(type)
+            const data = await productService.findNameProductByCategory({ productName, type, option, offset })
+            return res.status(200).json({
+                errCode: 0,
+                data
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                errCode: -1,
+                errMessage: 'Error from the server'
+            })
+        }
     }
-        
 }

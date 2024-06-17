@@ -1,7 +1,7 @@
 const express = require('express')
 const productController = require('../controllers/productController')
 const authMiddlewareController = require('../middlewares/authMiddlewareController')
-const {verifyAccessToken} = require('../middlewares/verifyAccessTokenMiddleware')
+const { verifyAccessToken } = require('../middlewares/verifyAccessTokenMiddleware')
 const { upload, uploadMultiple } = require('../middlewares/multer')
 const firebaseController = require('../controllers/firebaseController')
 
@@ -10,17 +10,18 @@ const productRoute = express.Router()
 // GET: /api/v1/product
 productRoute.get('/', productController.getAllProducts)
 // POST: /api/v1/product/create
-productRoute.post('/create', 
-    verifyAccessToken, 
-    authMiddlewareController.verifyTokenAdmin, 
+productRoute.post('/create',
+    verifyAccessToken,
+    authMiddlewareController.verifyTokenAdmin,
     upload,
+    productController.getProductByCode,
     firebaseController.upload,
-    productController.createNewProduct, 
+    productController.createNewProduct,
 )
 // DELETE: /api/v1/product/delete
-productRoute.delete('/delete', 
-    verifyAccessToken, 
-    authMiddlewareController.verifyTokenAdmin, 
+productRoute.delete('/delete',
+    verifyAccessToken,
+    authMiddlewareController.verifyTokenAdmin,
     productController.getImageProductById,
     firebaseController.delete,
     productController.deleteProduct
@@ -28,31 +29,31 @@ productRoute.delete('/delete',
 // GET: /api/v1/product/id
 productRoute.get('/id', productController.getProductById)
 // POST: /api/v1/product/update
-productRoute.post('/update', 
-    verifyAccessToken, 
-    authMiddlewareController.verifyTokenAdmin, 
-    upload, 
+productRoute.post('/update',
+    verifyAccessToken,
+    authMiddlewareController.verifyTokenAdmin,
+    upload,
     productController.getImageProductById,
-    firebaseController.upload, 
+    firebaseController.upload,
     firebaseController.delete,
-    productController.updateProduct, 
+    productController.updateProduct,
 )
 // GET: /api/v1/product/count
-productRoute.get('/count', 
-    verifyAccessToken, 
-    authMiddlewareController.verifyTokenAdmin, 
+productRoute.get('/count',
+    verifyAccessToken,
+    authMiddlewareController.verifyTokenAdmin,
     productController.getCountProducts
 )
 // POST: /api/v1/product/image/change
-productRoute.post('/image/change', 
-    verifyAccessToken, 
-    authMiddlewareController.verifyTokenAdmin, 
-    upload, 
+productRoute.post('/image/change',
+    verifyAccessToken,
+    authMiddlewareController.verifyTokenAdmin,
+    upload,
     productController.getImageProductById,
     firebaseController.delete,
-    firebaseController.upload, 
+    firebaseController.upload,
     productController.changeImageMainProduct
-) 
+)
 // GET: /api/v1/product/description
 productRoute.get('/description', productController.getAllDescriptionProduct)
 // POST: /api/v1/product/description/create
@@ -60,9 +61,9 @@ productRoute.post('/description/create', productController.addDescriptionProduct
 // GET: /api/v1/product/public
 productRoute.get('/home_page', productController.getAllProductPublic)
 // GET: /api/v1/product/category/count
-productRoute.get('/category/count', 
-    verifyAccessToken, 
-    authMiddlewareController.verifyTokenAdmin, 
+productRoute.get('/category/count',
+    verifyAccessToken,
+    authMiddlewareController.verifyTokenAdmin,
     productController.getQuantityOfEachProductByCategory
 )
 // GET: /api/v1/product/category
@@ -72,10 +73,16 @@ productRoute.get('/category/limit', productController.getProductByCategoryLimit)
 // GET: /api/v1/product/categoryDetail
 productRoute.get('/categoryDetail', productController.getProductByCategoryDetailLimit)
 // GET: /api/v1/product/sort/limit
-productRoute.get('/sort/limit', productController.getLimitProductByOption) 
+productRoute.get('/sort/limit', productController.getLimitProductByOption)
 // GET: /api/v1/product/search/name
 productRoute.get('/search/name', productController.searchProductByName)
 // GET: /api/v1/product/search/name/limit
 productRoute.get('/search/name/limit', productController.searchProductByNameLimit)
+// GET: /api/v1/product/search/name/category
+productRoute.get('/search/name/category',
+    verifyAccessToken,
+    authMiddlewareController.verifyTokenAdmin,
+    productController.findNameProductByCategory
+)
 
 module.exports = productRoute

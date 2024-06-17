@@ -8,7 +8,7 @@ module.exports = {
         try {
             let data = await productTypeService.getAllProductTypes()
             return res.status(200).json(data)
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
@@ -18,17 +18,21 @@ module.exports = {
     },
     getLimitProductTypes: async (req, res) => {
         try {
-            if (!req?.query?.page) {
-                return res.status(200).json({
+            const { page } = req.query
+            if (!page) {
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parameter'
                 })
             }
-            let data = await productTypeService.getLimitProductTypes(req?.query?.page)
-            return res.status(200).json(data)
-        } catch(e) {
-            console.log(e)
+            const data = await productTypeService.getLimitProductTypes(page)
             return res.status(200).json({
+                errCode: 0,
+                data
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -44,7 +48,7 @@ module.exports = {
             }
             let data = await productTypeService.getProductTypeByCategoryId(req?.query?.categoryId)
             return res.status(200).json(data)
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
@@ -62,7 +66,7 @@ module.exports = {
             }
             let data = await productTypeService.getProductTypeById(req?.query?.id)
             return res.status(200).json(data)
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
@@ -81,7 +85,7 @@ module.exports = {
             let data = await productTypeService.getImageProductTypeById(req?.query?.id)
             req.imageUrl = data.imageRoot
             return next()
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
@@ -101,19 +105,19 @@ module.exports = {
             }
             data.imageRoot = imageRoot
             const productType = await productTypeService.createProductType(data)
-            if (!productType) {
-                return res.status(400).json({
-                    errCode: 1, 
-                    errMessage: 'Create product type failed'
+            if (productType) {
+                return res.status(200).json({
+                    errCode: 0,
+                    errMessage: 'Tạo mới thành công'
                 })
             }
-            return res.status(200).json({
-                errCode: 0,
-                errMessage: 'Create product type success'
+            return res.status(400).json({
+                errCode: 1,
+                errMessage: 'Tạo mới thất bại'
             })
-        } catch(e) {
+        } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -121,7 +125,7 @@ module.exports = {
     },
     deleteProductTypeById: async (req, res) => {
         try {
-            const {id} = req.query
+            const { id } = req.query
             if (!id) {
                 return res.status(200).json({
                     errCode: 1,
@@ -130,7 +134,7 @@ module.exports = {
             }
             let data = await productTypeService.deleteProductTypeById(id)
             return res.status(200).json(data)
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
@@ -140,7 +144,7 @@ module.exports = {
     },
     updateProductType: async (req, res) => {
         try {
-            const {id} = req.query
+            const { id } = req.query
             const productType = JSON.parse(req?.body?.productType)
             if (!productType.name || !id || productType.status === '' || !productType.categoryId || !productType.imageUrl) {
                 return res.status(400).json({
@@ -156,12 +160,34 @@ module.exports = {
                 errCode: 0,
                 errMessage: 'Update product type success'
             })
-        } catch(e) {
+        } catch (e) {
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
         }
-    }
+    },
+    getLimitProductTypesByName: async (req, res) => {
+        try {
+            const { page, name } = req.query
+            if (!page) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Missing required parameter'
+                })
+            }
+            const data = await productTypeService.getLimitProductTypesByName(page, name)
+            return res.status(200).json({
+                errCode: 0,
+                data
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                errCode: -1,
+                errMessage: 'Error the from server'
+            })
+        }
+    },
 }
