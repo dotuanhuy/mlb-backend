@@ -38,7 +38,7 @@ module.exports = {
         })
     },
     findUserByEmailService: (email) => {
-        return new Promise(async (resolve, reject) => {
+        return new Promise((resolve, reject) => {
             db.User.findOne({
                 where: { email },
                 attributes: {
@@ -54,39 +54,6 @@ module.exports = {
             })
                 .then(resolve)
                 .catch(reject)
-        })
-    },
-    findUserByIdAndTokenService: ({ id, token }) => {
-        return new Promise(async (resolve, resject) => {
-            try {
-                const user = await db.User.findOne({
-                    where: { id: +id, token },
-                    attributes: {
-                        exclude: ['password']
-                    },
-                    include: [
-                        {
-                            model: db.Role, as: 'dataRole'
-                        }
-                    ],
-                    raw: true,
-                    nest: true
-                })
-                if (user) {
-                    resolve({
-                        errCode: 0,
-                        data: user
-                    })
-                }
-                else {
-                    resolve({
-                        errCode: 1,
-                        errMessage: 'User is not exist'
-                    })
-                }
-            } catch (e) {
-                resject(e)
-            }
         })
     },
     checkEmail: (email) => {
@@ -166,32 +133,6 @@ module.exports = {
             }
         })
     },
-    handleLogoutService: (id) => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                const user = await db.User.findOne({
-                    where: { id: id },
-                    raw: false,
-                })
-                if (user) {
-                    user.token = ''
-                    await user.save()
-                    resolve({
-                        errCode: 0,
-                        errMessage: 'Successfully updated user token'
-                    })
-                }
-                else {
-                    resolve({
-                        errCode: 2,
-                        errMessage: 'User is not exists'
-                    })
-                }
-            } catch (e) {
-                reject(e)
-            }
-        })
-    },
     addDateTokeService: (token, id) => {
         return new Promise(async (resolve, reject) => {
             db.User.update({ token }, {
@@ -223,7 +164,7 @@ module.exports = {
             }
         })
     },
-    getUserByIdService: (id) => {
+    getUserById: (id) => {
         return new Promise((resolve, reject) => {
             db.User.findOne({
                 where: {
@@ -238,7 +179,7 @@ module.exports = {
                         attributes: ['id', 'name']
                     }
                 ],
-                raw: false,
+                raw: true,
                 nest: true
             })
                 .then(resolve)

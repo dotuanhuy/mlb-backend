@@ -24,6 +24,12 @@ authRoute.get('/google/callback', (req, res, next) => {
 authRoute.post('/google/success', authController.loginWebDifferentlySuccess)
 // POST: /api/v1/auth/logout
 authRoute.post('/logout', verifyAccessToken, authController.handleLogout)
+// POST: /api/v1/auth/send-mail
+authRoute.post('/send-mail', authController.sendMail)
+// POST: /api/v1/auth/verifyotp
+authRoute.post('/verifyotp', authController.verifyOtp)
+// POST: /api/v1/auth/register
+authRoute.post('/register', authController.register)
 // POST: /api/v1/auth/password/change
 authRoute.post('/password/change', verifyAccessToken, userController.changePassword)
 // POST: /api/v1/auth/password/forgot

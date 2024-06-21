@@ -16,12 +16,6 @@ userRoute.delete('/delete', verifyAccessToken, authMiddlewareController.verifyTo
 userRoute.post('/update', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, userController.updateUser)
 // GET: /api/v1/user/limit
 userRoute.get('/limit', verifyAccessToken, authMiddlewareController.verifyTokenAdmin, userController.getLimitUsers)
-// POST: /api/v1/user/verifyotp
-userRoute.post('/verifyotp', userController.verifyOtp)
-// POST: /api/v1/user/send-mail
-userRoute.post('/send-mail', userController.sendMail)
-// POST: /api/v1/user/register
-userRoute.post('/register', userController.register)
 // GET: /api/v1/user/address
 userRoute.get('/address', userController.getAllAddress)
 // GET: /api/v1/user/get/id

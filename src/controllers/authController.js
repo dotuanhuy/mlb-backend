@@ -84,13 +84,7 @@ module.exports = {
             }
             const accessToken = await signAccessToken(user)
             const refreshToken = await signRefreshToken(user)
-            const info = await userService.addDateTokeService(refreshToken, user.id)    // Thêm token khi đăng nhập thành công
-            if (!info) {
-                return res.status(500).json({
-                    errCode: -1,
-                    errMessage: 'Error from the server'
-                })
-            }
+
             delete user['password']
             user.accessToken = accessToken
             // Tạo refresh token
@@ -136,11 +130,9 @@ module.exports = {
     loginWebDifferently: async (req, res) => {
         try {
             const profile = req?.user
-            const user = await userService.findUserByEmailService(profile?.emails[0]?.value)
-            let token = ''
-            let id = ''
+            let user = await userService.findUserByEmailService(profile?.emails[0]?.value)
             if (!user) {
-                const data = await userService.registerSevice({
+                const data = await userService.register({
                     email: profile?.emails[0]?.value,
                     firstName: profile?.name?.givenName,
                     lastName: profile?.name?.familyName,
@@ -148,32 +140,19 @@ module.exports = {
                     typeLogin: profile?.provider,
                     roleId: process.env.USER_ROLE,
                 })
-                const userDB = data.user
-                id = userDB.id
-                token = await signRefreshToken({
-                    id: userDB.id,
-                    roleId: userDB.roleId,
-                    firstName: userDB.firstName,
-                    lastName: userDB.lastName,
-                    email: userDB.email
-                })
-                await userService.updateRefreshRokenService({ id: userDB.id, token })
+                user = data?.dataValues
             }
-            else {
-                id = user.id
-                token = await signRefreshToken({
-                    id: user.id,
-                    roleId: user.roleId,
-                    firstName: user.firstName,
-                    lastName: user.lastName,
-                    email: user.email
-                })
-                await userService.updateRefreshRokenService({ id: user.id, token })
-            }
-            res.redirect(`${process.env.CLIENT_URL}/login-success?id=${id}&token=${token}`)
+            const token = await signRefreshToken({
+                id: user.id,
+                roleId: user.roleId,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email
+            })
+            return res.redirect(`${process.env.CLIENT_URL}/login-success?id=${user?.id}&token=${token}`)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
@@ -181,33 +160,58 @@ module.exports = {
     },
     loginWebDifferentlySuccess: async (req, res) => {
         try {
-            let { id, token } = req?.body
+            const { id, token } = req?.body
             if (!id || !token) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parameters'
                 })
             }
-            let infor = await userService.findUserByIdAndTokenService(req?.body)
-            if (infor.errCode !== 0) {
-                return res.status(200).json(infor)
+            const user = await userService.getUserById(+id)
+            if (!user) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Người dùng không tồn tại'
+                })
             }
-
-            const accessToken = await signAccessToken(infor.data)
-            await res.cookie('token', infor?.data?.token, {
+            const refreshToken = await signRefreshToken(user)
+            const accessToken = await signAccessToken(user)
+            user.accessToken = accessToken
+            await res.cookie('token', refreshToken, {
                 httpOnly: true,
                 path: '/',
                 sameSite: 'strict', // Ngăn chặn tất công CSRT,
                 secure: false,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
+
+            const { firstName, lastName, email, phone, gender, avatar, birthDate, address } = user
+            // Tạo cookie my infor
+            const jsonInfo = JSON.stringify({
+                firstName,
+                lastName,
+                email,
+                phone,
+                gender,
+                avatar,
+                birthDate,
+                address
+            })
+            const encrypted = AES.encrypt(jsonInfo, process.env.KEY_AES).toString()
+            await res.cookie('info', encrypted, {
+                httpOnly: false,
+                path: '/',
+                sameSite: 'strict', // Ngăn chặn tất công CSRT,
+                secure: false,
+                expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+            })
             return res.status(200).json({
-                ...infor,
-                accessToken,
+                errCode: 0,
+                data: user
             })
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
@@ -215,21 +219,147 @@ module.exports = {
     },
     handleLogout: async (req, res) => {
         try {
+            const user = req.user
             await res.clearCookie('token')
             await res.clearCookie('info')
-            if (req?.user) {
-                let data = await userService.handleLogoutService(req?.user.id)
-                return res.status(200).json(data)
+            if (!user) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Người dùng không tồn tại'
+                })
+            }
+            const data = await userService.getUserById(user?.id)
+            if (!data) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Người dùng không tồn tại'
+                })
             }
             return res.status(200).json({
-                errCode: 2,
-                errMessage: 'User is not exist'
+                errCode: 0,
+                errMessage: 'Đăng xuất thành công'
             })
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
+            })
+        }
+    },
+    sendMail: async (req, res) => {
+        try {
+            const { email, type } = req.body
+            if (!email || !type) {
+                return res.status(200).json({
+                    errCode: 1,
+                    errMessage: 'Missing requied parameters'
+                })
+            }
+            const check = await userService.checkEmail(email)
+            if (check) {
+                if (type === 'register') {
+                    return res.status(400).json({
+                        errCode: 1,
+                        errMessage: 'Email đã tồn tại. Vui lòng nhập email khác'
+                    })
+                }
+            }
+            else {
+                if (type === 'forgot password') {
+                    return res.status(400).json({
+                        errCode: 1,
+                        errMessage: 'Email không tồn tại trên hệ thống. Vui lòng kiểm tra lại'
+                    })
+                }
+            }
+            const data = await userService.sendMailService(email)
+            return res.status(200).json(data)
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                errCode: -1,
+                errMessage: 'Error the from server'
+            })
+        }
+    },
+    verifyOtp: async (req, res) => {
+        try {
+            const { otp, email } = req.body
+            if (!otp || !email) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Missing requied parameters'
+                })
+            }
+            const otpHolder = await userService.findEmailOtp(email)
+            if (!otpHolder.length) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Mã xác thực hết hạn'
+                })
+            }
+            const lastOtp = otpHolder[otpHolder.length - 1]
+            const isValid = await bcrypt.compareSync(otp, lastOtp?.otp)
+            if (!isValid) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Mã xác thực không chính xác'
+                })
+            }
+            if (isValid && email === lastOtp?.email) {
+                const deleted = await userService.deleteOtp(email)
+                return res.status(200).json({
+                    errCode: 0,
+                    data: email,
+                    isVerify: true
+                })
+            }
+            return res.status(400).json({
+                errCode: 1,
+                errMessage: 'Xác thực thất bại. Vui lòng thử lại'
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                errCode: -1,
+                errMessage: 'Error the from server'
+            })
+        }
+    },
+    register: async (req, res) => {
+        try {
+            const { email, firstName, lastName, phone, password } = req?.body
+            if (!email || !firstName || !lastName || !phone || !password) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Missing requied parameters'
+                })
+            }
+            const check = await userService.checkEmail(email)
+            if (check) {
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: 'Email đã tồn tại. Vui lòng nhập email khác'
+                })
+            }
+            const hashPassword = await bcrypt.hashSync(password, salt)
+            const infor = await userService.register({ email, firstName, lastName, phone, password: hashPassword, roleId: 2 })
+            if (infor) {
+                return res.status(200).json({
+                    errCode: 0,
+                    errMessage: 'Đăng ký tài khoản thành công'
+                })
+            }
+            return res.status(400).json({
+                errCode: 1,
+                errMessage: 'Đăng ký tài khoản thất bại'
+            })
+        } catch (e) {
+            console.log(e)
+            return res.status(500).json({
+                errCode: -1,
+                errMessage: 'Error the from server'
             })
         }
     },

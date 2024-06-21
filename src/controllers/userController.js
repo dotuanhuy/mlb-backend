@@ -65,7 +65,7 @@ module.exports = {
                     errMessage: 'Missing required parameters'
                 })
             }
-            const user = await userService.getUserByIdService(id)
+            const user = await userService.getUserById(id)
             if (!user) {
                 return res.status(400).json({
                     errCode: 1,
@@ -101,7 +101,7 @@ module.exports = {
                     errMessage: 'Missing required parameters'
                 })
             }
-            const user = await userService.getUserByIdService(id)
+            const user = await userService.getUserById(id)
             if (!user) {
                 return res.status(400).json({
                     errCode: 1,
@@ -142,7 +142,7 @@ module.exports = {
                     errMessage: 'Missing required parameters'
                 })
             }
-            const user = await userService.getUserByIdService(req.query.id)
+            const user = await userService.getUserById(req.query.id)
             if (!user) {
                 return res.status(200).json({
                     errCode: 1,
@@ -171,122 +171,6 @@ module.exports = {
         } catch (e) {
             console.log(e)
             return res.status(200).json({
-                errCode: -1,
-                errMessage: 'Error the from server'
-            })
-        }
-    },
-    verifyOtp: async (req, res) => {
-        try {
-            const { otp, email } = req.body
-            if (!otp || !email) {
-                return res.status(400).json({
-                    errCode: 1,
-                    errMessage: 'Missing requied parameters'
-                })
-            }
-            const otpHolder = await userService.findEmailOtp(email)
-            if (!otpHolder.length) {
-                return res.status(400).json({
-                    errCode: 1,
-                    errMessage: 'Mã xác thực hết hạn'
-                })
-            }
-            const lastOtp = otpHolder[otpHolder.length - 1]
-            const isValid = await bcrypt.compareSync(otp, lastOtp?.otp)
-            if (!isValid) {
-                return res.status(400).json({
-                    errCode: 1,
-                    errMessage: 'Mã xác thực không chính xác'
-                })
-            }
-            if (isValid && email === lastOtp?.email) {
-                const deleted = await userService.deleteOtp(email)
-                return res.status(200).json({
-                    errCode: 0,
-                    data: email,
-                    isVerify: true
-                })
-            }
-            return res.status(400).json({
-                errCode: 1,
-                errMessage: 'Xác thực thất bại. Vui lòng thử lại'
-            })
-        } catch (e) {
-            console.log(e)
-            return res.status(500).json({
-                errCode: -1,
-                errMessage: 'Error the from server'
-            })
-        }
-    },
-    sendMail: async (req, res) => {
-        try {
-            const { email, type } = req.body
-            if (!email || !type) {
-                return res.status(200).json({
-                    errCode: 1,
-                    errMessage: 'Missing requied parameters'
-                })
-            }
-            const check = await userService.checkEmail(email)
-            if (check) {
-                if (type === 'register') {
-                    return res.status(400).json({
-                        errCode: 1,
-                        errMessage: 'Email đã tồn tại. Vui lòng nhập email khác'
-                    })
-                }
-            }
-            else {
-                if (type === 'forgot password') {
-                    return res.status(400).json({
-                        errCode: 1,
-                        errMessage: 'Email không tồn tại trên hệ thống. Vui lòng kiểm tra lại'
-                    })
-                }
-            }
-            const data = await userService.sendMailService(email)
-            return res.status(200).json(data)
-        } catch (e) {
-            console.log(e)
-            return res.status(500).json({
-                errCode: -1,
-                errMessage: 'Error the from server'
-            })
-        }
-    },
-    register: async (req, res) => {
-        try {
-            const { email, firstName, lastName, phone, password } = req?.body
-            if (!email || !firstName || !lastName || !phone || !password) {
-                return res.status(400).json({
-                    errCode: 1,
-                    errMessage: 'Missing requied parameters'
-                })
-            }
-            const check = await userService.checkEmail(email)
-            if (check) {
-                return res.status(400).json({
-                    errCode: 1,
-                    errMessage: 'Email đã tồn tại. Vui lòng nhập email khác'
-                })
-            }
-            const hashPassword = await bcrypt.hashSync(password, salt)
-            const infor = await userService.register({ email, firstName, lastName, phone, password: hashPassword, roleId: 2 })
-            if (infor) {
-                return res.status(200).json({
-                    errCode: 0,
-                    errMessage: 'Đăng ký tài khoản thành công'
-                })
-            }
-            return res.status(400).json({
-                errCode: 1,
-                errMessage: 'Đăng ký tài khoản thất bại'
-            })
-        } catch (e) {
-            console.log(e)
-            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -352,7 +236,7 @@ module.exports = {
         try {
             const { id, roleId, email } = req.user
             const { firstName, lastName, birthDate, phone, gender, address } = req.body
-            const infoUser = await userService.getUserByIdService(id)
+            const infoUser = await userService.getUserById(id)
             if (!id) {
                 return res.status(400).json({
                     errCode: 0,
