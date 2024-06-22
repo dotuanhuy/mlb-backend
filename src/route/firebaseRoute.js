@@ -13,4 +13,7 @@ firebaseRoute.post('/mlb/upload', upload, firebaseController.upload)
 // POST: /api/v1/firebase/mlb/delete
 firebaseRoute.post('/mlb/delete', firebaseController.delete)
 
+// GET: /api/v1/firebase/image/logo
+firebaseRoute.get('/image/logo', firebaseController.getLogo)
+
 module.exports = firebaseRoute

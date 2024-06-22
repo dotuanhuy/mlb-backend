@@ -21,8 +21,8 @@ module.exports = {
                     },
                 ],
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getAllOrdersByUser: (userId) => {
@@ -46,8 +46,8 @@ module.exports = {
                 ],
                 order: [['id', 'DESC']],
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getOrderLimit: (page) => {
@@ -59,8 +59,8 @@ module.exports = {
                 raw: true,
                 nest: true
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getOrderWaitConfirmationLimit: (page) => {
@@ -69,15 +69,15 @@ module.exports = {
                 where: {
                     isCancelled: 0,
                     orderStatus: 'wait confirmation'
-                },  
+                },
                 order: [['id', 'DESC']],
                 offset: +page * (+process.env.LIMIT_PAGE),
                 limit: +process.env.LIMIT_PAGE,
                 raw: true,
                 nest: true
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getOrderWaitPayLimit: (page) => {
@@ -86,15 +86,15 @@ module.exports = {
                 where: {
                     isCancelled: 0,
                     orderStatus: 'wait pay'
-                },  
+                },
                 order: [['id', 'DESC']],
                 offset: +page * (+process.env.LIMIT_PAGE),
                 limit: +process.env.LIMIT_PAGE,
                 raw: true,
                 nest: true
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getOrderShippingLimit: (page) => {
@@ -103,15 +103,15 @@ module.exports = {
                 where: {
                     isCancelled: 0,
                     orderStatus: 'shipping'
-                },  
+                },
                 order: [['id', 'DESC']],
                 offset: +page * (+process.env.LIMIT_PAGE),
                 limit: +process.env.LIMIT_PAGE,
                 raw: true,
                 nest: true
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getOrderFinishedLimit: (page) => {
@@ -120,15 +120,15 @@ module.exports = {
                 where: {
                     isCancelled: 0,
                     orderStatus: 'finished'
-                },  
+                },
                 order: [['id', 'DESC']],
                 offset: +page * (+process.env.LIMIT_PAGE),
                 limit: +process.env.LIMIT_PAGE,
                 raw: true,
                 nest: true
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getOrderById: (id) => {
@@ -136,7 +136,7 @@ module.exports = {
             db.Order.findOne({
                 where: {
                     id
-                },  
+                },
                 include: [
                     {
                         model: db.Payment, as: 'dataPayment'
@@ -151,8 +151,8 @@ module.exports = {
                     },
                 ],
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     confirmOrder: (id) => {
@@ -160,8 +160,8 @@ module.exports = {
             db.Order.update({ orderStatus: 'shipping' }, {
                 where: { id }
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     cancelOrder: (id) => {
@@ -169,28 +169,31 @@ module.exports = {
             db.Order.update({ isCancelled: 1 }, {
                 where: { id }
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getListOrderId: (id) => {
         return new Promise((resolve, reject) => {
-            db.User.findOne({
+            db.Order.findAll({
                 attributes: ['id'],
-                where: { id },
+                where: { userId: id },
                 include: [
                     {
-                        model: db.Order, as: 'dataOrder',
+                        model: db.Product, as: 'dataOrderProduct',
                         attributes: ['id'],
-                        where: {
-                            orderStatus: 'finished',
-                            isCancelled: 0
-                        }
-                    }
-                ]
+                        through: { model: db.OrderDetail }
+                    },
+                ],
+                where: {
+                    orderStatus: 'finished',
+                    isCancelled: 0
+                },
+                raw: true,
+                nest: true
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     createOrder: (data) => {
@@ -205,11 +208,11 @@ module.exports = {
                 orderStatus: 'wait confirmation',
                 isCancelled: 0
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
-    createOrderDetail: ({orderId, productId, size, quantity, price}) => {
+    createOrderDetail: ({ orderId, productId, size, quantity, price }) => {
         return new Promise((resolve, reject) => {
             db.OrderDetail.create({
                 orderId,
@@ -218,15 +221,15 @@ module.exports = {
                 quantity,
                 price
             })
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
     getTotalOrder: () => {
         return new Promise((resolve, reject) => {
             db.Order.count()
-            .then(resolve)
-            .catch(reject)
+                .then(resolve)
+                .catch(reject)
         })
     },
 }

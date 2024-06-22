@@ -130,12 +130,14 @@ module.exports = {
             }
             const order = await orderService.getListOrderId(id)
             if (!order) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Cancel order failed'
                 })
             }
-            const listOrderId = order?.dataOrder.map(item => item.id)
+            const arr = new Set(order.map(item => item?.dataOrderProduct?.id))
+            const listOrderId = [...arr]
+
             return res.status(200).json({
                 errCode: 0,
                 data: listOrderId
@@ -150,7 +152,10 @@ module.exports = {
             const data = req.body
             const { id } = req.user
             if (!data) {
-                return res.status(400).json("Missing required parameter")
+                return res.status(400).json({
+                    errCode: 1,
+                    errMessage: "Missing required parameter"
+                })
             }
             data.address = `${data.address}, ${data.ward}, ${data.district}, ${data.city}`
             data.userId = id
@@ -202,6 +207,7 @@ module.exports = {
                     })
                     return res.status(200).json({
                         errCode: 0,
+                        errMessage: 'Đặt hàng thành công',
                         data: {
                             orderId: order?.dataValues?.id
                         }

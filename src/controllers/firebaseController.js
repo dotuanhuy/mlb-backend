@@ -103,5 +103,16 @@ module.exports = {
             console.log(e);
             return res.status(200).json(e)
         }
-    }
+    },
+    getLogo: async (req, res) => {
+        try {
+            const data = await firebaseService.getLogo()
+            return res.status(200).json({
+                errCode: 0,
+                data: data[0]?.url
+            })
+        } catch (e) {
+            return res.status(500).json(e)
+        }
+    },
 }

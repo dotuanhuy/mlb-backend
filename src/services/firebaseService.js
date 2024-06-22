@@ -106,5 +106,27 @@ module.exports = {
                 })
             return { errCode: 0 }
         }
-    }
+    },
+    getLogo: async () => {
+        const app2 = firebase.getApp('app2')
+        const storage = getStorage(app2);
+        const listRef = ref(storage, 'logoWeb');
+        let results = ''
+        await listAll(listRef)
+            .then((res) => {
+                const promise = res.items.map(async (itemRef, index) => {
+                    const url = await getDownloadURL(itemRef)
+                    const name = itemRef.name
+                    return { name, url }
+                });
+                return Promise.all(promise)
+            })
+            .then(res => {
+                results = res
+            })
+            .catch(error => {
+                return error
+            });
+        return results
+    },
 }
