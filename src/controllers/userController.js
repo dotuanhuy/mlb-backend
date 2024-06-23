@@ -270,8 +270,7 @@ module.exports = {
                 await res.cookie('info', encrypted, {
                     httpOnly: false,
                     path: '/',
-                    sameSite: 'None', // Ngăn chặn tất công CSRT,
-                    secure: true,
+                    secure: false,
                     expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
                 })
                 return res.status(200).json({
