@@ -24,7 +24,7 @@ module.exports = {
             await res.cookie('token', refToken, {
                 httpOnly: true,
                 path: '/',
-                sameSite: 'strict', // Ngăn chặn tất công CSRT,
+                sameSite: 'Strict', // Ngăn chặn tất công CSRT,
                 secure: false,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
@@ -91,7 +91,7 @@ module.exports = {
             await res.cookie('token', refreshToken, {
                 httpOnly: true,
                 path: '/',
-                sameSite: 'strict', // Ngăn chặn tất công CSRT,
+                sameSite: 'Strict', // Ngăn chặn tất công CSRT,
                 secure: false,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
@@ -111,7 +111,7 @@ module.exports = {
             await res.cookie('info', encrypted, {
                 httpOnly: false,
                 path: '/',
-                sameSite: 'strict', // Ngăn chặn tất công CSRT,
+                sameSite: 'None', // Ngăn chặn tất công CSRT,
                 secure: false,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
@@ -180,7 +180,7 @@ module.exports = {
             await res.cookie('token', refreshToken, {
                 httpOnly: true,
                 path: '/',
-                sameSite: 'strict', // Ngăn chặn tất công CSRT,
+                sameSite: 'Strict', // Ngăn chặn tất công CSRT,
                 secure: false,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
@@ -201,7 +201,7 @@ module.exports = {
             await res.cookie('info', encrypted, {
                 httpOnly: false,
                 path: '/',
-                sameSite: 'strict', // Ngăn chặn tất công CSRT,
+                sameSite: 'None', // Ngăn chặn tất công CSRT,
                 secure: false,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
