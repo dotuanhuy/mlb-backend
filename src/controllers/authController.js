@@ -111,7 +111,8 @@ module.exports = {
             await res.cookie('info', encrypted, {
                 httpOnly: false,
                 path: '/',
-                secure: false,
+                sameSite: 'Lax',
+                secure: true,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
             return res.status(200).json({
@@ -200,7 +201,8 @@ module.exports = {
             await res.cookie('info', encrypted, {
                 httpOnly: false,
                 path: '/',
-                secure: false,
+                sameSite: 'Lax',
+                secure: true,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
             return res.status(200).json({
