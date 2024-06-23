@@ -8,7 +8,7 @@ module.exports = {
             return res.status(200).json(data)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -17,7 +17,7 @@ module.exports = {
     getAllImagesByProductId: async (req, res) => {
         try {
             if (!req?.query?.id) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
                 })
@@ -26,7 +26,7 @@ module.exports = {
             return res.status(200).json(data)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -56,7 +56,7 @@ module.exports = {
         try {
             const { arrId } = req?.body
             if (!arrId || arrId.length === 0) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
                 })
@@ -65,7 +65,7 @@ module.exports = {
             return res.status(200).json(data)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -75,7 +75,7 @@ module.exports = {
         try {
             const { category } = req?.query
             if (!category) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
                 })
@@ -84,7 +84,7 @@ module.exports = {
             return res.status(200).json(data)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })

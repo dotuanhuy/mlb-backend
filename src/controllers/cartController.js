@@ -5,7 +5,7 @@ let getCartsByUser = async (req, res) => {
         const userId = req?.user.id
         let data = []
         if (!userId) {
-            return res.status(200).json({
+            return res.status(400).json({
                 errCode: 1,
                 errMessage: 'Missing required parameters'
             })
@@ -17,7 +17,7 @@ let getCartsByUser = async (req, res) => {
         return res.status(200).json(data)
     } catch (e) {
         console.log(e)
-        return res.status(200).json({
+        return res.status(500).json({
             errCode: -1,
             errMessage: 'Error from the server'
         })

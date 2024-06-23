@@ -10,7 +10,7 @@ module.exports = {
             return res.status(200).json(data)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -41,7 +41,7 @@ module.exports = {
     getProductTypeByCategoryId: async (req, res) => {
         try {
             if (!req?.query?.categoryId) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parameter'
                 })
@@ -50,7 +50,7 @@ module.exports = {
             return res.status(200).json(data)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -59,7 +59,7 @@ module.exports = {
     getProductTypeById: async (req, res) => {
         try {
             if (!req?.query?.id) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parameter'
                 })
@@ -68,7 +68,7 @@ module.exports = {
             return res.status(200).json(data)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -77,7 +77,7 @@ module.exports = {
     getImageProductTypeById: async (req, res, next) => {
         try {
             if (!req?.query?.id) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parameter'
                 })
@@ -87,7 +87,7 @@ module.exports = {
             return next()
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -127,7 +127,7 @@ module.exports = {
         try {
             const { id } = req.query
             if (!id) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parameter'
                 })
@@ -136,7 +136,7 @@ module.exports = {
             return res.status(200).json(data)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -162,7 +162,7 @@ module.exports = {
             })
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })

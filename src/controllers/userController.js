@@ -12,7 +12,7 @@ module.exports = {
             return res.status(200).json(data)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
@@ -128,7 +128,7 @@ module.exports = {
             return res.status(200).json(data)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
@@ -137,7 +137,7 @@ module.exports = {
     getUserById: async (req, res) => {
         try {
             if (!req.query.id) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing required parameters'
                 })
@@ -152,7 +152,7 @@ module.exports = {
             return res.status(200).json({ errCode: 0, data: user })
         } catch (e) {
             console.log(e)
-            return res.status(200).jso({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error from the server'
             })
@@ -161,7 +161,7 @@ module.exports = {
     getLimitUsers: async (req, res) => {
         try {
             if (!req.query.page) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
                 })
@@ -170,7 +170,7 @@ module.exports = {
             return res.status(200).json(data)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -181,7 +181,7 @@ module.exports = {
             const { id } = req.user
             const { newPassword, oldPassword } = req?.body
             if (!id || !newPassword || !oldPassword) {
-                return res.status(200).json({
+                return res.status(400).json({
                     errCode: 1,
                     errMessage: 'Missing requied parameters'
                 })
@@ -208,13 +208,13 @@ module.exports = {
                     errMessage: 'Đổi mật khẩu thành công. Vui lòng đăng nhập lại!'
                 })
             }
-            return res.status(200).json({
+            return res.status(400).json({
                 errCode: 1,
                 errMessage: 'Đổi mật khẩu thất bại'
             })
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })
@@ -226,7 +226,7 @@ module.exports = {
             return res.status(200).json(data)
         } catch (e) {
             console.log(e)
-            return res.status(200).json({
+            return res.status(500).json({
                 errCode: -1,
                 errMessage: 'Error the from server'
             })

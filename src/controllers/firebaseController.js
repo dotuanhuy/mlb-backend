@@ -101,7 +101,7 @@ module.exports = {
             return next()
         } catch (e) {
             console.log(e);
-            return res.status(200).json(e)
+            return res.status(500).json(e)
         }
     },
     getLogo: async (req, res) => {
