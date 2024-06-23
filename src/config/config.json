@@ -17,10 +17,12 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "root",
-    "password": null,
-    "database": "database_production",
-    "host": "127.0.0.1",
-    "dialect": "mysql"
+    "username": "avnadmin",
+    "password": "AVNS_hiH8rlXvgNNwGU3QJvD",
+    "database": "db_mlb",
+    "host": "mlb-db-project-mlb.d.aivencloud.com",
+    "port": "20144",
+    "dialect": "mysql",
+    "timezone": "+07:00"
   }
 }
