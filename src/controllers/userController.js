@@ -251,8 +251,8 @@ module.exports = {
                 await res.cookie('token', refToken, {
                     httpOnly: true,
                     path: '/',
-                    sameSite: 'Strict', // Ngăn chặn tất công CSRT,
-                    secure: true,
+                    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // Ngăn chặn tất công CSRT,
+                    secure: process.env.NODE_ENV === 'production',
                     expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
                 })
                 const jsonInfo = JSON.stringify({
@@ -266,18 +266,19 @@ module.exports = {
                     address,
                 })
                 const encrypted = AES.encrypt(jsonInfo, process.env.KEY_AES).toString()
-                await res.clearCookie('info')
-                await res.cookie('info', encrypted, {
-                    httpOnly: false,
-                    path: '/',
-                    sameSite: 'Lax',
-                    secure: true,
-                    expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
-                })
+                // await res.clearCookie('info')
+                // await res.cookie('info', encrypted, {
+                //     httpOnly: false,
+                //     path: '/',
+                //     sameSite: 'none',
+                //     secure: true,
+                //     expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+                // })
                 return res.status(200).json({
                     errCode: 0,
                     errMessage: 'Sửa thông tin thành công',
-                    accessToken
+                    accessToken,
+                    info: encrypted
                 })
             }
             return res.status(400).json({
@@ -285,6 +286,7 @@ module.exports = {
                 errMessage: 'Sửa thông tin thất bại'
             })
         } catch (e) {
+            await res.clearCookie('token')
             console.log(e)
             return res.status(500).json({
                 errCode: -1,

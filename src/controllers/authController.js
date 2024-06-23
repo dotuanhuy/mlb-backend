@@ -5,7 +5,6 @@ const bcrypt = require('bcrypt')
 const salt = bcrypt.genSaltSync(10)
 const { AES } = require('crypto-js')
 
-
 module.exports = {
     handleRefreshToken: async (req, res) => {
         try {
@@ -24,8 +23,8 @@ module.exports = {
             await res.cookie('token', refToken, {
                 httpOnly: true,
                 path: '/',
-                sameSite: 'Strict', // Ngăn chặn tất công CSRT,
-                secure: true,
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // Ngăn chặn tất công CSRT,
+                secure: process.env.NODE_ENV === 'production',
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
             return res.status(200).json({
@@ -33,6 +32,7 @@ module.exports = {
                 accessToken
             })
         } catch (e) {
+            await res.clearCookie('token')
             console.log(e)
             return res.status(200).json({
                 errCode: -1,
@@ -91,8 +91,8 @@ module.exports = {
             await res.cookie('token', refreshToken, {
                 httpOnly: true,
                 path: '/',
-                sameSite: 'Strict', // Ngăn chặn tất công CSRT,
-                secure: true,
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // Ngăn chặn tất công CSRT,
+                secure: process.env.NODE_ENV === 'production',
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
             const { firstName, lastName, phone, gender, avatar, birthDate, address } = user
@@ -108,18 +108,20 @@ module.exports = {
                 address
             })
             const encrypted = AES.encrypt(jsonInfo, process.env.KEY_AES).toString()
-            await res.cookie('info', encrypted, {
-                httpOnly: false,
-                path: '/',
-                sameSite: 'Lax',
-                secure: true,
-                expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
-            })
+            user.info = encrypted
+            // await res.cookie('info', encrypted, {
+            //     httpOnly: false,
+            //     path: '/',
+            //     sameSite: 'none',
+            //     secure: true,
+            //     expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+            // })
             return res.status(200).json({
                 errCode: 0,
                 data: user
             })
         } catch (e) {
+            await res.clearCookie('token')
             console.log(e)
             return res.status(500).json({
                 errCode: -1,
@@ -180,8 +182,8 @@ module.exports = {
             await res.cookie('token', refreshToken, {
                 httpOnly: true,
                 path: '/',
-                sameSite: 'Strict', // Ngăn chặn tất công CSRT,
-                secure: true,
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict', // Ngăn chặn tất công CSRT,
+                secure: process.env.NODE_ENV === 'production',
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
 
@@ -198,18 +200,20 @@ module.exports = {
                 address
             })
             const encrypted = AES.encrypt(jsonInfo, process.env.KEY_AES).toString()
-            await res.cookie('info', encrypted, {
-                httpOnly: false,
-                path: '/',
-                sameSite: 'Lax',
-                secure: true,
-                expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
-            })
+            user.info = encrypted
+            // await res.cookie('info', encrypted, {
+            //     httpOnly: false,
+            //     path: '/',
+            //     sameSite: 'none',
+            //     secure: true,
+            //     expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
+            // })
             return res.status(200).json({
                 errCode: 0,
                 data: user
             })
         } catch (e) {
+            await res.clearCookie('token')
             console.log(e)
             return res.status(500).json({
                 errCode: -1,
@@ -221,7 +225,7 @@ module.exports = {
         try {
             const user = req.user
             await res.clearCookie('token')
-            await res.clearCookie('info')
+            // await res.clearCookie('info')
             if (!user) {
                 return res.status(400).json({
                     errCode: 1,
