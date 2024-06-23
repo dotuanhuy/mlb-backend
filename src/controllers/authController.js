@@ -25,7 +25,7 @@ module.exports = {
                 httpOnly: true,
                 path: '/',
                 sameSite: 'Strict', // Ngăn chặn tất công CSRT,
-                secure: false,
+                secure: true,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
             return res.status(200).json({
@@ -92,7 +92,7 @@ module.exports = {
                 httpOnly: true,
                 path: '/',
                 sameSite: 'Strict', // Ngăn chặn tất công CSRT,
-                secure: false,
+                secure: true,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
             const { firstName, lastName, phone, gender, avatar, birthDate, address } = user
@@ -112,7 +112,7 @@ module.exports = {
                 httpOnly: false,
                 path: '/',
                 sameSite: 'None', // Ngăn chặn tất công CSRT,
-                secure: false,
+                secure: true,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
             return res.status(200).json({
@@ -181,7 +181,7 @@ module.exports = {
                 httpOnly: true,
                 path: '/',
                 sameSite: 'Strict', // Ngăn chặn tất công CSRT,
-                secure: false,
+                secure: true,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
 
@@ -202,7 +202,7 @@ module.exports = {
                 httpOnly: false,
                 path: '/',
                 sameSite: 'None', // Ngăn chặn tất công CSRT,
-                secure: false,
+                secure: true,
                 expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000)
             })
             return res.status(200).json({
